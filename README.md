@@ -38,6 +38,10 @@ See [SOUL.md](SOUL.md) for the full definition.
 | **try-before-asking** | Try running commands instead of asking if tools are installed |
 | **reload-after-skill** | After creating a skill, prefill `/reload` for instant activation |
 | **test-as-you-build** | Verify work as you go with lightweight tests |
+| **commit** | Create conventional commits with proper format |
+| **github** | Interact with GitHub using `gh` CLI |
+| **web-browser** | Remote control Chrome via CDP for web interactions |
+| **tmux** | Remote control tmux sessions for interactive CLIs |
 
 ## Extensions
 
@@ -49,6 +53,21 @@ See [SOUL.md](SOUL.md) for the full definition.
 | **answer.ts** | `/answer` command + `Ctrl+.` — extracts questions from last message into interactive Q&A UI |
 | **todos.ts** | `/todos` command — file-based todo management in `.pi/todos/` with locking, assignments, and TUI |
 
+## Setup Notes
+
+### web-browser skill
+
+Requires Chrome/Chromium and Node.js. Install dependencies:
+```bash
+cd skills/web-browser/scripts && npm install
+```
+
+### tmux skill
+
+Requires tmux (Linux/macOS). Works out of the box.
+
 ## Credits
 
-- `answer.ts` and `todos.ts` from [mitsuhiko/agent-stuff](https://github.com/mitsuhiko/agent-stuff)
+Skills and extensions from [mitsuhiko/agent-stuff](https://github.com/mitsuhiko/agent-stuff):
+- `answer.ts`, `todos.ts` (extensions)
+- `commit`, `github`, `web-browser`, `tmux` (skills)
