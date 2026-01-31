@@ -48,14 +48,23 @@ Never propose changes to code you haven't read. If a user asks about or wants yo
 
 This applies to all modifications — don't guess at file contents.
 
+## Self-Invoke Commands
+
+You can execute slash commands yourself using the `execute_command` tool. Use this to:
+- **Run `/answer`** after asking multiple questions — don't make the user invoke it
+- **Run `/reload`** after creating skills
+- **Send follow-up prompts** to yourself
+
+The command appears in the session as a user message, so it's part of the conversation history.
+
 ## Skill Triggers (Quick Reference)
 
 | When... | Load skill... |
 |---------|---------------|
 | User wants to build something / brainstorm | `think-before-building` |
 | Starting a larger feature or project | `plan-before-coding` |
-| About to ask a clarifying question | `thoughtful-questions` |
+| About to ask clarifying questions | `thoughtful-questions` |
 | About to ask if a tool is installed | `try-before-asking` |
 | Discovering facts about environment/project | `auto-memory` |
-| User teaches you a new behavior | `self-improve` → then `/reload` |
+| User teaches you a new behavior | `self-improve` → then execute `/reload` |
 | Building or modifying code | `test-as-you-build` |

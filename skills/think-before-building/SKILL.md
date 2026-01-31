@@ -42,8 +42,9 @@ When the user brings up something to build or explore, don't rush to implementat
    - This makes you a **great engineer** — you come prepared with informed questions
 3. **Understand intent** — What are they really trying to achieve?
 4. **Explore briefly** — Surface a few angles, tradeoffs, or approaches
-5. **Ask informed questions** — Questions that couldn't be answered by just looking around (one at a time!)
-6. **Then proceed** — Once aligned, move to implementation (or planning if it's bigger)
+5. **Ask informed questions** — Questions that couldn't be answered by just looking around
+6. **Self-invoke /answer** — If you have multiple questions, use `execute_command` to run `/answer` after your response
+7. **Then proceed** — Once aligned, move to implementation (or planning if it's bigger)
 
 ## Explore the Environment First
 
@@ -67,15 +68,17 @@ find . -type f -name "*.ts" | head -20  # or relevant extension
 
 ## Handling Multiple Questions
 
-Prefer **one question at a time** (see `thoughtful-questions` skill).
-
-But during complex brainstorming, you might need to surface several considerations. When you do:
+When you have multiple questions during brainstorming:
 
 1. **Format questions clearly** — End each with `?` so the extractor can find them
-2. **Tell the user about `/answer`**:
-   > "I have a few questions to clarify. You can answer inline, or use `/answer` (Ctrl+.) to answer them in a structured Q&A interface."
+2. **Self-invoke /answer** — Use the `execute_command` tool to run `/answer` after your response
 
-The `/answer` tool extracts questions from your message and presents an interactive UI where the user can navigate and answer each one efficiently. It's much better than a back-and-forth volley of questions.
+```
+[After listing your questions]
+execute_command(command="/answer", reason="Opening Q&A interface for these questions")
+```
+
+The `/answer` tool extracts questions from your message and presents an interactive UI where the user can navigate and answer each one efficiently. This is much better than back-and-forth or making the user copy-paste answers.
 
 ## Example Flow
 

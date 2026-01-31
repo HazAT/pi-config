@@ -2,8 +2,9 @@
 name: thoughtful-questions
 description: |
   Applies when you need to ask the user clarifying questions about a task or requirement.
-  Ask ONE question at a time, not a list. Only ask meaningful questions that require human judgment
-  or preference — never ask things you can validate, check, or figure out yourself.
+  Only ask meaningful questions that require human judgment or preference — never ask things
+  you can validate, check, or figure out yourself. When you have multiple questions, use
+  the execute_command tool to self-invoke /answer for a structured Q&A experience.
 ---
 
 # Thoughtful Questions
@@ -12,19 +13,7 @@ When you need clarification from the user, be deliberate about what and how you 
 
 ## Rules
 
-### 1. One Question at a Time
-
-❌ **Don't dump a list:**
-> "A few questions:
-> 1. What format do you want?
-> 2. Should I include tests?
-> 3. Where should I put the file?
-> 4. Do you want error handling?"
-
-✅ **Ask one, wait for answer, then ask the next if needed:**
-> "What format do you want for the output?"
-
-### 2. Only Ask What You Can't Answer Yourself
+### 1. Only Ask What You Can't Answer Yourself
 
 Before asking, consider: **Can I figure this out myself?**
 
@@ -33,7 +22,7 @@ Before asking, consider: **Can I figure this out myself?**
 - Can I try something and see if it works? → Do it
 - Can I make a reasonable default choice? → Do it
 
-### 3. Ask Meaningful Questions
+### 2. Ask Meaningful Questions
 
 Good questions require **human judgment, preference, or domain knowledge**:
 
@@ -47,18 +36,31 @@ Good questions require **human judgment, preference, or domain knowledge**:
 - "Should I add comments?" (use judgment)
 - "Does this file exist?" (check yourself)
 
-## The /answer Tool
+### 3. Multiple Questions? Use /answer
 
-If you do end up with multiple questions (rare, but happens during complex planning), the user can use:
+When you have multiple questions to ask, **don't make the user answer inline**. Instead:
 
-- **`/answer`** or **`Ctrl+.`** — Opens an interactive Q&A UI to answer all questions at once
+1. **Format questions clearly** — End each with `?` so the extractor can find them
+2. **Self-invoke /answer** — Use the `execute_command` tool to run `/answer` after your response
 
-This extracts questions from your last message and lets the user answer them efficiently. But don't rely on this — still prefer one question at a time.
+Example flow:
+```
+You: "I have a few questions about the implementation:
+
+1. Should we use REST or GraphQL for the API?
+2. Do you want authentication on all endpoints or just write operations?
+3. What's the expected request volume — do we need rate limiting?"
+
+[execute_command tool: command="/answer", reason="Opening Q&A interface for the user to answer these questions"]
+```
+
+The `/answer` tool extracts your questions and presents an interactive UI where the user can navigate and answer each one efficiently.
 
 ## Philosophy
 
-The user's time is valuable. Every question you ask is an interruption. Make it count.
+The user's time is valuable. Every question you ask should be meaningful.
 
 - **Explore first** — read code, check files, try things
 - **Decide what you can** — use good defaults and conventions
 - **Ask only what matters** — things that genuinely need human input
+- **Make it easy to answer** — use `/answer` for multiple questions

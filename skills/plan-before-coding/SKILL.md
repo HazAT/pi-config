@@ -47,13 +47,17 @@ If unclear, ask:
 Use the `think-before-building` skill:
 - Understand the intention
 - Explore approaches
-- Ask meaningful questions (one at a time!)
+- Ask meaningful questions
 - Align on scope and direction
 
-**When you have multiple questions:** Format them clearly with `?` endings. Tell the user:
-> "I have a few questions to clarify. You can answer inline, or use `/answer` (Ctrl+.) to answer them all in a structured Q&A interface."
+**When you have multiple questions:** Format them clearly with `?` endings, then use `execute_command` to self-invoke `/answer`:
 
-The `/answer` tool extracts questions from your message and presents an interactive UI for the user to answer each one efficiently.
+```
+[After listing your questions]
+execute_command(command="/answer", reason="Opening Q&A interface for planning questions")
+```
+
+The `/answer` tool extracts questions from your message and presents an interactive UI for the user to answer each one efficiently. Don't make the user answer inline — invoke it yourself.
 
 ### 3. Write the Plan
 
