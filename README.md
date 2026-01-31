@@ -33,6 +33,8 @@ pi update
 |-----------|--------------|
 | **memory.ts** | Persistent memory system — global (`~/.pi/memory.md`) and per-project (`.pi/memory.md`) |
 | **prefill-editor.ts** | Tool to prefill the input editor (powers the reload-after-skill flow) |
+| **answer.ts** | `/answer` command + `Ctrl+.` — extracts questions from last message into interactive Q&A UI |
+| **todos.ts** | `/todos` command — file-based todo management in `.pi/todos/` with locking, assignments, and TUI |
 
 ## Philosophy
 
@@ -41,3 +43,7 @@ These skills teach pi to:
 - **Learn continuously** — remember facts and adapt behaviors over time
 - **Respect my time** — ask smart questions, try things before asking
 - **Plan bigger work** — write detailed plans that can be handed off to sub-agents
+
+## Credits
+
+- `answer.ts` and `todos.ts` from [mitsuhiko/agent-stuff](https://github.com/mitsuhiko/agent-stuff)
