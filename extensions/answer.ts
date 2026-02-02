@@ -53,16 +53,21 @@ Rules:
 - Be concise with question text
 - Include context only when it provides essential information for answering
 - If no questions are found, return {"questions": []}
+- IMPORTANT: When a question has multiple choice options (a, b, c or 1, 2, 3), preserve them EXACTLY in the context field using the format "(a) Option one, (b) Option two, (c) Option three"
 
 Example output:
 {
   "questions": [
     {
       "question": "What is your preferred database?",
-      "context": "We can only configure MySQL and PostgreSQL because of what is implemented."
+      "context": "(a) MySQL, (b) PostgreSQL, (c) SQLite"
     },
     {
-      "question": "Should we use TypeScript or JavaScript?"
+      "question": "Should we use TypeScript or JavaScript?",
+      "context": "(a) TypeScript, (b) JavaScript"
+    },
+    {
+      "question": "What port should the server run on?"
     }
   ]
 }`;
@@ -196,6 +201,82 @@ class QnAComponent implements Component {
 		this.invalidate();
 	}
 
+	/**
+	 * Format context for TUI display, splitting choices onto separate lines and wrapping
+	 */
+	private formatContextForDisplay(context: string, maxWidth: number): string[] {
+		const lines: string[] = [];
+
+		// Check if context contains multiple choice options
+		const choicePattern = /(?:^|,\s*|\s+)\(([a-z]|[0-9]+)\)\s+/gi;
+		const matches = [...context.matchAll(choicePattern)];
+
+		if (matches.length >= 2) {
+			// Check if there's text before the first choice
+			const firstMatchIndex = matches[0].index || 0;
+			const prefix = context.slice(0, firstMatchIndex).trim();
+			if (prefix) {
+				const wrappedPrefix = wrapTextWithAnsi(prefix, maxWidth);
+				lines.push(...wrappedPrefix);
+				lines.push(""); // Empty line before choices
+			}
+
+			// Format each choice on its own line
+			for (let i = 0; i < matches.length; i++) {
+				const match = matches[i];
+				const startIndex = match.index || 0;
+				const endIndex = i < matches.length - 1 ? matches[i + 1].index : context.length;
+				const choiceText = context.slice(startIndex, endIndex).replace(/^,?\s*/, "").trim();
+
+				// Wrap long choice text with proper indentation
+				const wrappedChoice = wrapTextWithAnsi(`  ${choiceText}`, maxWidth);
+				lines.push(...wrappedChoice);
+			}
+
+			return lines;
+		}
+
+		// No choices detected, just wrap the text
+		return wrapTextWithAnsi(context, maxWidth);
+	}
+
+	/**
+	 * Format context text, splitting multiple choice options onto separate lines
+	 * Detects patterns like (a), (b), (1), (2), etc.
+	 */
+	private formatContext(context: string): string[] {
+		// Check if context contains multiple choice options
+		// Pattern: (a), (b), (c) or (1), (2), (3) or a), b), c)
+		const choicePattern = /(?:^|,\s*|\s+)\(([a-z]|[0-9]+)\)\s+/gi;
+		const matches = [...context.matchAll(choicePattern)];
+
+		if (matches.length >= 2) {
+			// Split by the choice markers and format each on its own line
+			const lines: string[] = [];
+
+			// Check if there's text before the first choice (like "Options:" or "Pick any:")
+			const firstMatchIndex = matches[0].index || 0;
+			const prefix = context.slice(0, firstMatchIndex).trim();
+			if (prefix) {
+				lines.push(`> ${prefix}`);
+			}
+
+			// Split the choices
+			for (let i = 0; i < matches.length; i++) {
+				const match = matches[i];
+				const startIndex = match.index || 0;
+				const endIndex = i < matches.length - 1 ? matches[i + 1].index : context.length;
+				const choiceText = context.slice(startIndex, endIndex).replace(/^,?\s*/, "").trim();
+				lines.push(`>   ${choiceText}`);
+			}
+
+			return lines;
+		}
+
+		// No choices detected, return as single line
+		return [`> ${context}`];
+	}
+
 	private submit(): void {
 		this.saveCurrentAnswer();
 
@@ -206,7 +287,8 @@ class QnAComponent implements Component {
 			const a = this.answers[i]?.trim() || "(no answer)";
 			parts.push(`Q: ${q.question}`);
 			if (q.context) {
-				parts.push(`> ${q.context}`);
+				const contextLines = this.formatContext(q.context);
+				parts.push(...contextLines);
 			}
 			parts.push(`A: ${a}`);
 			parts.push("");
@@ -360,13 +442,12 @@ class QnAComponent implements Component {
 			lines.push(padToWidth(boxLine(line)));
 		}
 
-		// Context if present
+		// Context if present - format choices on separate lines
 		if (q.context) {
 			lines.push(padToWidth(emptyBoxLine()));
-			const contextText = this.gray(`> ${q.context}`);
-			const wrappedContext = wrapTextWithAnsi(contextText, contentWidth - 2);
-			for (const line of wrappedContext) {
-				lines.push(padToWidth(boxLine(line)));
+			const contextLines = this.formatContextForDisplay(q.context, contentWidth - 4);
+			for (const contextLine of contextLines) {
+				lines.push(padToWidth(boxLine(this.gray(contextLine))));
 			}
 		}
 
