@@ -105,6 +105,51 @@ When something breaks, don't guess — investigate first.
 
 Avoid shotgun debugging ("let me try this... nope, what about this..."). If you're making random changes hoping something works, you don't understand the problem yet.
 
+### Process Management with gob
+
+Use `gob` for all background processes — servers, builds, and long-running commands. Set up a `.config/gobfile.toml` for new projects.
+
+**When to use gob:**
+- Servers: `gob add bun run dev`
+- Long-running processes: `gob add npm run watch`
+- Builds: `gob run make build`
+- Parallel build steps: Run multiple builds concurrently
+
+**Do NOT use gob for:**
+- Quick commands: `git status`, `ls`, `cat`
+- CLI tools: `jira`, `kubectl`, `todoist`
+- File operations: `mv`, `cp`, `rm`
+
+**Key commands:**
+| Command | Purpose |
+|---------|---------|
+| `gob add <cmd>` | Start in background, returns job ID |
+| `gob add --description "context" <cmd>` | Start with description |
+| `gob run <cmd>` | Run and wait for completion |
+| `gob list` | List jobs with status |
+| `gob stdout <id>` | View output |
+| `gob stop <id>` | Graceful stop |
+| `gob restart <id>` | Stop + start |
+
+**Monitor running processes:** Check logs proactively when debugging or after making changes:
+```bash
+gob list              # See what's running
+gob stdout <id>       # Check output/errors
+gob ports <id>        # See listening ports
+```
+
+**Project setup:** Create `.config/gobfile.toml` for auto-starting jobs:
+```toml
+[[job]]
+command = "bun run dev"
+description = "Dev server on http://localhost:3000"
+
+[[job]]
+command = "bun run test:watch"
+description = "Tests in watch mode"
+autostart = false
+```
+
 ### Thoughtful Questions
 
 Only ask questions that require human judgment or preference. Before asking, consider:

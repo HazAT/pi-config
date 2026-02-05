@@ -1,6 +1,6 @@
 # Pi Config
 
-My personal [pi](https://github.com/badlogic/pi) configuration — skills, extensions, and soul that shape how pi works for me.
+My personal [pi](https://github.com/badlogic/pi) configuration — skills, extensions, agents, and soul that shape how pi works for me.
 
 ## Setup
 
@@ -85,11 +85,11 @@ The symlinks bridge the gap between where pi-config lives and where subagents lo
 ```bash
 # Check agents are linked
 ls -la ~/.pi/agent/agents/
-# Should show: scout.md, planner.md, worker.md, reviewer.md
+# Should show: scout.md, worker.md, reviewer.md
 
 # Check skills are linked  
 ls ~/.pi/agent/skills/
-# Should show: brainstorm, commit, github, plan-before-coding, etc.
+# Should show: brainstorm, commit, github, tmux
 
 # Test the chain
 pi
@@ -106,7 +106,7 @@ After updating, re-run the symlink commands if new agents or skills were added.
 
 ## Soul
 
-The **SOUL.md** defines who Pi is — identity, values, and approach. It's prepended to the system prompt on every turn.
+The **SOUL.md** defines who Pi is — identity, values, and approach. It's prepended to the system prompt on every turn via the `soul.ts` extension.
 
 ### Core Principles (always-on)
 
@@ -122,12 +122,13 @@ These behaviors apply automatically — no skill loading needed:
 | **Test As You Build** | Verify work as you go, not at the end |
 | **Verify Before Done** | Run verification commands before claiming success |
 | **Investigate Before Fixing** | Find root cause, no shotgun debugging |
+| **Process Management** | Use `gob` for background processes (servers, builds) |
 | **Thoughtful Questions** | Only ask what requires human judgment |
 
 ### Main Agent Identity
 
 Pi-specific behaviors (not inherited by subagents):
-- Self-invoke commands (`/answer`, `/reload`)
+- Self-invoke commands (`/answer`, `/reload`) via the `execute_command` tool
 - Delegate to subagents for substantial work
 - Skill triggers for explicit workflows
 
@@ -140,101 +141,112 @@ Specialized subagents for delegated workflows. Requires `pi-subagents` package.
 | Agent | Model | Purpose |
 |-------|-------|---------|
 | **scout** | Haiku | Fast codebase reconnaissance — gathers context without changes |
-| **planner** | Opus | Creates detailed plans and bite-sized todos from context |
-| **worker** | Opus | Implements tasks from todos, maintains progress |
+| **worker** | Opus | Implements tasks from todos, writes code, runs tests |
 | **reviewer** | Opus | Reviews code for quality, security, and correctness |
 
-### Chain Pattern
+### Workflow Patterns
 
-The default workflow chains agents together:
+**Planning happens in the main session** (interactive, with user feedback) — not delegated to subagents. Use the `brainstorm` skill for structured planning.
 
-```
-scout → planner → worker(s) → reviewer
-```
-
-- **scout** outputs `context.md` (codebase overview, patterns, gotchas)
-- **planner** reads context, outputs `plan.md` and creates todos
-- **worker** claims todos, implements, maintains `progress.md`
-- **reviewer** reads everything, outputs `review.md` with findings
-
-### Example Usage
-
+**Standard implementation flow:**
 ```typescript
-// Full feature implementation
 { chain: [
-  { agent: "scout", task: "Gather context for: add user authentication" },
-  { agent: "planner" },
-  { agent: "worker" },
-  { agent: "reviewer" }
+  { agent: "scout", task: "Gather context for [feature]. Key files: [list relevant files]" },
+  { agent: "worker", task: "Implement TODO-xxxx. Plan: .pi/plans/YYYY-MM-DD-feature.md" },
+  { agent: "worker", task: "Implement TODO-yyyy. Plan: .pi/plans/YYYY-MM-DD-feature.md" },
+  { agent: "reviewer", task: "Review implementation. Plan: .pi/plans/YYYY-MM-DD-feature.md" }
 ]}
+```
 
-// Parallel workers for independent tasks
+**Quick fix (no plan needed):**
+```typescript
 { chain: [
-  { agent: "scout", task: "Gather context" },
-  { agent: "planner" },
-  { parallel: [
-    { agent: "worker", task: "Implement TODO-xxxx" },
-    { agent: "worker", task: "Implement TODO-yyyy" }
-  ]},
+  { agent: "worker", task: "Fix [specific issue]" },
   { agent: "reviewer" }
 ]}
 ```
+
+### Agent Outputs
+
+Each agent writes to a specific file in the chain directory:
+
+| Agent | Output File | Contents |
+|-------|------------|----------|
+| `scout` | `context.md` | Codebase overview, patterns, gotchas |
+| `worker` | `progress.md` | Completed todos, issues encountered |
+| `reviewer` | `review.md` | Findings with priority levels, verdict |
 
 See [Setup](#setup) for installation and symlink instructions.
 
 ## Skills
 
-Skills are for **explicit workflows** and **specialized tools** — not always-on behaviors (those are in SOUL.md).
+Skills provide specialized instructions for specific tasks. They're loaded on-demand when the context matches.
 
-### Workflows
+| Skill | When to Load | What it does |
+|-------|--------------|--------------|
+| **brainstorm** | Planning a new feature or significant change | Structured brainstorming: investigate → clarify → explore → validate design → write plan → create todos → execute with subagents |
+| **commit** | Making git commits | Create conventional commits with proper format |
+| **github** | Working with GitHub | Interact with GitHub using `gh` CLI — issues, PRs, CI runs |
+| **tmux** | Need interactive CLI control | Remote control tmux sessions for interactive CLIs (python, gdb, etc.) |
 
-| Skill | What it does |
-|-------|--------------|
-| **brainstorm** | Structured brainstorming: investigate → requirements → approaches → validate design → plan |
-| **plan-before-coding** | Write plans section-by-section, create bite-sized todos, choose execution method |
-| **self-improve** | Learn new behaviors from natural language — "Hey pi, remember that..." |
-| **auto-memory** | Remember facts about environment, projects, and gotchas (memory vs skill distinction) |
+### Skill Triggers (from SOUL.md)
 
-### Specialized Tools
+The soul references additional skills that may be added in the future:
 
-| Skill | What it does |
-|-------|--------------|
-| **commit** | Create conventional commits with proper format |
-| **github** | Interact with GitHub using `gh` CLI |
-| **web-browser** | Remote control Chrome via CDP for web interactions |
-| **tmux** | Remote control tmux sessions for interactive CLIs |
-| **frontend-design** | Design and implement distinctive frontend interfaces |
+| When... | Load skill... |
+|---------|---------------|
+| User wants to brainstorm / build something significant | `brainstorm` |
+| Making git commits | `commit` |
+| Working with GitHub | `github` |
+| Need to control tmux sessions | `tmux` |
 
 ## Extensions
 
-| Extension | What it does |
-|-----------|--------------|
-| **soul.ts** | Loads SOUL.md and prepends it to the system prompt |
-| **memory.ts** | Persistent memory system — global (`~/.pi/memory.md`) and per-project (`.pi/memory.md`) |
-| **execute-command.ts** | Tool to self-invoke slash commands like `/answer`, `/reload` |
+Extensions add functionality to pi — commands, tools, shortcuts, and hooks.
+
+| Extension | What it provides |
+|-----------|------------------|
+| **soul.ts** | Loads SOUL.md and prepends it to the system prompt on every turn |
+| **execute-command.ts** | `execute_command` tool — self-invoke slash commands like `/answer`, `/reload` |
 | **answer.ts** | `/answer` command + `Ctrl+.` — extracts questions from last message into interactive Q&A UI |
-| **todos.ts** | `/todos` command — file-based todo management in `.pi/todos/` with locking, assignments, and TUI |
+| **todos.ts** | `/todos` command + `todo` tool — file-based todo management in `.pi/todos/` with locking, assignments, and TUI |
 | **review.ts** | `/review` command — code review for PRs, branches, commits, or uncommitted changes |
-| **files.ts** | `/files` command + `Ctrl+Shift+O` — browse files with git status, reveal, diff, edit |
+
+### Commands
+
+| Command | Shortcut | Description |
+|---------|----------|-------------|
+| `/answer` | `Ctrl+.` | Extract questions from last assistant message into interactive Q&A |
+| `/todos` | — | Visual todo manager for file-based todos in `.pi/todos/` |
+| `/review` | — | Interactive code review (PR, branch, commit, uncommitted changes) |
+| `/end-review` | — | Complete review session and return to original position |
+
+### Tools
+
+| Tool | Description |
+|------|-------------|
+| `execute_command` | Self-invoke slash commands or send follow-up prompts |
+| `todo` | Manage file-based todos (list, get, create, update, append, delete, claim, release) |
 
 ## Setup Notes
-
-### web-browser skill
-
-Requires Chrome/Chromium and Node.js. Install dependencies:
-```bash
-cd skills/web-browser/scripts && npm install
-```
 
 ### tmux skill
 
 Requires tmux (Linux/macOS). Works out of the box.
 
+The skill uses a dedicated socket directory for agent sessions:
+- Socket dir: `${TMPDIR:-/tmp}/claude-tmux-sockets`
+- Default socket: `claude.sock`
+
+Helper scripts in `skills/tmux/scripts/`:
+- `wait-for-text.sh` — Poll a pane for a regex pattern with timeout
+- `find-sessions.sh` — List tmux sessions with metadata
+
 ## Credits
 
 Skills and extensions from [mitsuhiko/agent-stuff](https://github.com/mitsuhiko/agent-stuff):
-- `answer.ts`, `todos.ts`, `review.ts`, `files.ts` (extensions)
-- `commit`, `github`, `web-browser`, `tmux`, `frontend-design` (skills)
+- `answer.ts`, `todos.ts`, `review.ts` (extensions)
+- `commit`, `github`, `tmux` (skills)
 
 Skill patterns and principles inspired by [obra/superpowers](https://github.com/obra/superpowers):
 - `brainstorm` skill
