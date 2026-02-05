@@ -254,6 +254,5 @@ Skills provide specialized instructions for specific tasks. Load them when the c
 | Discovering facts about environment/project | `auto-memory` |
 | User teaches you a new behavior | `self-improve` → then `/reload` |
 | Working with GitHub | `github` |
-| Need to control tmux sessions | `tmux` |
 | Need to browse the web | `web-browser` |
 | Designing frontend interfaces | `frontend-design` |

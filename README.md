@@ -140,7 +140,7 @@ ls -la ~/.pi/agent/agents/
 
 # Check skills are linked  
 ls ~/.pi/agent/skills/
-# Should show: brainstorm, commit, github, tmux
+# Should show: brainstorm, commit, github
 
 # Test subagent delegation
 pi
@@ -240,7 +240,6 @@ Skills provide specialized instructions for specific tasks. They're loaded on-de
 | **brainstorm** | Planning a new feature or significant change | Structured brainstorming: investigate → clarify → explore → validate design → write plan → create todos → execute with subagents |
 | **commit** | Making git commits | Create conventional commits with proper format |
 | **github** | Working with GitHub | Interact with GitHub using `gh` CLI — issues, PRs, CI runs |
-| **tmux** | Need interactive CLI control | Remote control tmux sessions for interactive CLIs (python, gdb, etc.) |
 
 ### Extensions (from this config)
 
@@ -284,18 +283,6 @@ These tools come from the required npm packages:
 
 ## Setup Notes
 
-### tmux skill
-
-Requires tmux (Linux/macOS). Works out of the box.
-
-The skill uses a dedicated socket directory for agent sessions:
-- Socket dir: `${TMPDIR:-/tmp}/claude-tmux-sockets`
-- Default socket: `claude.sock`
-
-Helper scripts in `skills/tmux/scripts/`:
-- `wait-for-text.sh` — Poll a pane for a regex pattern with timeout
-- `find-sessions.sh` — List tmux sessions with metadata
-
 ### Recommended Settings
 
 My `~/.pi/agent/settings.json` uses these settings:
@@ -312,7 +299,7 @@ My `~/.pi/agent/settings.json` uses these settings:
 
 Skills and extensions from [mitsuhiko/agent-stuff](https://github.com/mitsuhiko/agent-stuff):
 - `answer.ts`, `todos.ts`, `review.ts` (extensions)
-- `commit`, `github`, `tmux` (skills)
+- `commit`, `github` (skills)
 
 Skill patterns and principles inspired by [obra/superpowers](https://github.com/obra/superpowers):
 - `brainstorm` skill
