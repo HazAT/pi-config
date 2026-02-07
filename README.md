@@ -22,7 +22,7 @@ mkdir -p ~/.pi/agent/agents ~/.pi/agent/skills
 for agent in "$PI_CONFIG_DIR"/agents/*.md; do ln -sf "$agent" ~/.pi/agent/agents/; done
 for skill in "$PI_CONFIG_DIR"/skills/*/; do ln -sf "$skill" ~/.pi/agent/skills/; done
 mkdir -p ~/.pi/agent/extensions
-ln -sf "$PI_CONFIG_DIR/.pi/extensions/context-filter" ~/.pi/agent/extensions/context-filter
+ln -sf "$PI_CONFIG_DIR/extensions/context-filter" ~/.pi/agent/extensions/context-filter
 
 # 4. Restart pi
 ```
@@ -89,7 +89,7 @@ done
 
 # Symlink extensions that need global availability
 mkdir -p ~/.pi/agent/extensions
-ln -sf "$PI_CONFIG_DIR/.pi/extensions/context-filter" ~/.pi/agent/extensions/context-filter
+ln -sf "$PI_CONFIG_DIR/extensions/context-filter" ~/.pi/agent/extensions/context-filter
 
 echo "Setup complete! Restart pi to load the new config."
 ```
@@ -126,7 +126,7 @@ done
 
 # 6. Symlink extensions that need global availability
 mkdir -p ~/.pi/agent/extensions
-ln -sf "$(pwd)/.pi/extensions/context-filter" ~/.pi/agent/extensions/context-filter
+ln -sf "$(pwd)/extensions/context-filter" ~/.pi/agent/extensions/context-filter
 
 echo "Setup complete! Restart pi to load the new config."
 ```
@@ -295,7 +295,7 @@ The **context-filter** extension reads a `.pi/.context` file to control which `A
 
 The `.context` file is read from `.pi/.context` in the current working directory only (no ancestor walking). Use `/reload` to pick up changes.
 
-See the [context-filter README](.pi/extensions/context-filter/README.md) for more details and examples.
+See the [context-filter README](extensions/context-filter/README.md) for more details and examples.
 
 #### Commands
 

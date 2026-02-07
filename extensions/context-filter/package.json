@@ -1,0 +1,10 @@
+{
+  "name": "pi-context-filter",
+  "private": true,
+  "dependencies": {
+    "picomatch": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/picomatch": "^3.0.0"
+  }
+}
