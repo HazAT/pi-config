@@ -21,8 +21,6 @@ PI_CONFIG_DIR="$HOME/.pi/agent/git/github.com/HazAT/pi-config"
 mkdir -p ~/.pi/agent/agents ~/.pi/agent/skills
 for agent in "$PI_CONFIG_DIR"/agents/*.md; do ln -sf "$agent" ~/.pi/agent/agents/; done
 for skill in "$PI_CONFIG_DIR"/skills/*/; do ln -sf "$skill" ~/.pi/agent/skills/; done
-mkdir -p ~/.pi/agent/extensions
-ln -sf "$PI_CONFIG_DIR/extensions/context-filter" ~/.pi/agent/extensions/context-filter
 
 # 4. Restart pi
 ```
@@ -87,10 +85,6 @@ for skill in "$PI_CONFIG_DIR"/skills/*/; do
   ln -sf "$skill" ~/.pi/agent/skills/
 done
 
-# Symlink extensions that need global availability
-mkdir -p ~/.pi/agent/extensions
-ln -sf "$PI_CONFIG_DIR/extensions/context-filter" ~/.pi/agent/extensions/context-filter
-
 echo "Setup complete! Restart pi to load the new config."
 ```
 
@@ -123,10 +117,6 @@ mkdir -p ~/.pi/agent/skills
 for skill in skills/*/; do
   ln -sf "$(pwd)/$skill" ~/.pi/agent/skills/
 done
-
-# 6. Symlink extensions that need global availability
-mkdir -p ~/.pi/agent/extensions
-ln -sf "$(pwd)/extensions/context-filter" ~/.pi/agent/extensions/context-filter
 
 echo "Setup complete! Restart pi to load the new config."
 ```
