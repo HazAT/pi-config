@@ -21,6 +21,8 @@ PI_CONFIG_DIR="$HOME/.pi/agent/git/github.com/HazAT/pi-config"
 mkdir -p ~/.pi/agent/agents ~/.pi/agent/skills
 for agent in "$PI_CONFIG_DIR"/agents/*.md; do ln -sf "$agent" ~/.pi/agent/agents/; done
 for skill in "$PI_CONFIG_DIR"/skills/*/; do ln -sf "$skill" ~/.pi/agent/skills/; done
+mkdir -p ~/.pi/agent/extensions
+ln -sf "$PI_CONFIG_DIR/.pi/extensions/context-filter" ~/.pi/agent/extensions/context-filter
 
 # 4. Restart pi
 ```
@@ -85,6 +87,10 @@ for skill in "$PI_CONFIG_DIR"/skills/*/; do
   ln -sf "$skill" ~/.pi/agent/skills/
 done
 
+# Symlink extensions that need global availability
+mkdir -p ~/.pi/agent/extensions
+ln -sf "$PI_CONFIG_DIR/.pi/extensions/context-filter" ~/.pi/agent/extensions/context-filter
+
 echo "Setup complete! Restart pi to load the new config."
 ```
 
@@ -117,6 +123,10 @@ mkdir -p ~/.pi/agent/skills
 for skill in skills/*/; do
   ln -sf "$(pwd)/$skill" ~/.pi/agent/skills/
 done
+
+# 6. Symlink extensions that need global availability
+mkdir -p ~/.pi/agent/extensions
+ln -sf "$(pwd)/.pi/extensions/context-filter" ~/.pi/agent/extensions/context-filter
 
 echo "Setup complete! Restart pi to load the new config."
 ```
@@ -256,6 +266,36 @@ Extensions add functionality to pi — commands, tools, shortcuts, and hooks.
 | **answer.ts** | `/answer` command + `Ctrl+.` — extracts questions from last message into interactive Q&A UI |
 | **todos.ts** | `/todos` command + `todo` tool — file-based todo management in `.pi/todos/` with locking, assignments, and TUI |
 | **review.ts** | `/review` command — code review for PRs, branches, commits, or uncommitted changes |
+| **context-filter** | `.gitignore`-style control over which context files and skills appear in the system prompt |
+
+#### Context Filter
+
+The **context-filter** extension reads a `.pi/.context` file to control which `AGENTS.md` / `CLAUDE.md` files and skills are included in the system prompt. It also supports adding custom context files.
+
+```bash
+# .pi/.context
+
+# Exclude the global AGENTS.md
+!~/.pi/agent/AGENTS.md
+
+# Exclude all ancestor AGENTS.md files
+!**/AGENTS.md
+
+# Exclude a specific skill
+!**/skills/brainstorm/SKILL.md
+
+# Include a custom context file
++.pi/MYCONTEXT.md
+```
+
+- `!pattern` — Exclude matching files (supports [picomatch](https://github.com/micromatch/picomatch) globs)
+- `+path` — Include an arbitrary file into the system prompt (resolved relative to project root)
+- `#` — Comments
+- Blank lines are ignored
+
+The `.context` file is read from `.pi/.context` in the current working directory only (no ancestor walking). Use `/reload` to pick up changes.
+
+See the [context-filter README](.pi/extensions/context-filter/README.md) for more details and examples.
 
 #### Commands
 
