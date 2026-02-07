@@ -81,8 +81,10 @@ function filterContextSections(prompt: string, matchers: picomatch.Matcher[]): s
   const contextBlock = prompt.slice(projectCtxStart, projectCtxEnd);
   const after = prompt.slice(projectCtxEnd);
 
-  // Split context block into sections by ## headings
-  const sectionRegex = /^## (.+)$/gm;
+  // Split context block into sections by ## /path headers only.
+  // AGENTS.md content contains its own ## headings, so we must only match
+  // headers that look like file paths (start with /).
+  const sectionRegex = /^## (\/[^\n]+)$/gm;
   const sections: { path: string; start: number; end: number }[] = [];
   let match: RegExpExecArray | null;
 
