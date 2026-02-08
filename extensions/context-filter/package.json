@@ -1,6 +1,16 @@
 {
   "name": "pi-context-filter",
-  "private": true,
+  "version": "1.0.0",
+  "description": "A pi extension that provides .gitignore-style control over which context files and skills appear in the system prompt",
+  "keywords": ["pi-package"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HazAT/pi-context-filter"
+  },
+  "license": "MIT",
+  "pi": {
+    "extensions": ["./index.ts"]
+  },
   "dependencies": {
     "picomatch": "^4.0.0"
   },
