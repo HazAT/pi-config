@@ -144,7 +144,7 @@ ls -la ~/.pi/agent/agents/
 
 # Check skills are linked  
 ls ~/.pi/agent/skills/
-# Should show: brainstorm, commit, github
+# Should show: brainstorm, code-simplifier, commit, github, etc.
 
 # Test subagent delegation
 pi
@@ -162,6 +162,10 @@ After updating, re-run the symlink commands if new agents or skills were added.
 ---
 
 ## What's Included
+
+### AGENTS.md
+
+The global `~/.pi/agent/AGENTS.md` is symlinked from [`agent/AGENTS.md`](agent/AGENTS.md) in this repo. It defines core principles, agent delegation patterns, skill triggers, and the merging workflow.
 
 ### Soul
 
@@ -200,7 +204,7 @@ Specialized subagents for delegated workflows. Provided by this config, powered 
 | Agent | Model | Purpose |
 |-------|-------|---------|
 | **scout** | Haiku | Fast codebase reconnaissance — gathers context without changes |
-| **worker** | Opus | Implements tasks from todos, writes code, runs tests |
+| **worker** | Opus | Implements tasks from todos, commits changes to the feature branch, and closes the todo |
 | **reviewer** | Opus | Reviews code for quality, security, and correctness |
 
 #### Workflow Patterns
@@ -225,6 +229,8 @@ Specialized subagents for delegated workflows. Provided by this config, powered 
 ]}
 ```
 
+**Merging:** After the reviewer completes, pi always pauses for manual testing and explicit user confirmation before squash merging the feature branch.
+
 #### Agent Outputs
 
 Each agent writes to a specific file in the chain directory:
@@ -242,6 +248,7 @@ Skills provide specialized instructions for specific tasks. They're loaded on-de
 | Skill | When to Load | What it does |
 |-------|--------------|--------------|
 | **brainstorm** | Planning a new feature or significant change | Structured brainstorming: investigate → clarify → explore → validate design → write plan → create todos → execute with subagents |
+| **code-simplifier** | Simplifying or cleaning up code | Refines code for clarity, consistency, and maintainability while preserving functionality |
 | **commit** | Making git commits | Create conventional commits with proper format |
 | **github** | Working with GitHub | Interact with GitHub using `gh` CLI — issues, PRs, CI runs |
 
@@ -334,6 +341,9 @@ My `~/.pi/agent/settings.json` uses these settings:
 Skills and extensions from [mitsuhiko/agent-stuff](https://github.com/mitsuhiko/agent-stuff):
 - `answer.ts`, `todos.ts`, `review.ts` (extensions)
 - `commit`, `github` (skills)
+
+Skills from [getsentry/skills](https://github.com/getsentry/skills):
+- `code-simplifier` (based on Anthropic's code-simplifier agent)
 
 Skill patterns and principles inspired by [obra/superpowers](https://github.com/obra/superpowers):
 - `brainstorm` skill
