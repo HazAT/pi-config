@@ -47,6 +47,10 @@ Phase 6: Create Todos
 Phase 6.5: Create Feature Branch
     ↓
 Phase 7: Execute with Subagents (each todo → polished commit)
+    ↓
+Phase 7.5: Visual Testing (optional, UI/web changes only)
+    ↓
+Phase 8: Review
 ```
 
 ---
@@ -400,6 +404,51 @@ When the reviewer returns with issues, **act on the important ones**:
 
 4. **Don't re-review minor fixes** — only run reviewer again if fixes were substantial
 
+---
+
+## Phase 7.5: Visual Testing (Optional)
+
+After all worker todos are complete, **if the plan involves UI or web changes**, offer a visual testing pass before the reviewer.
+
+### When to Trigger
+
+- The plan involves UI components, layouts, pages, or web-facing changes
+- **Skip for:** backend-only work, CLI tools, config changes, pure library code
+
+### Manual Checkpoint
+
+Ask the user before proceeding:
+
+> "All implementation todos are complete. This involved UI changes — would you like to run a visual test before the code review?"
+
+**If the user says yes**, confirm prerequisites:
+
+> "Two things I need before running the visual tester:
+> 1. Is your local dev server running? (e.g., `npm run dev`)
+> 2. Is the Playwriter Chrome extension connected? (Click the extension icon on your localhost tab)"
+
+**If the user says no**, skip straight to the reviewer.
+
+### Running the Visual Tester
+
+Once prerequisites are confirmed:
+
+```typescript
+{ agent: "visual-tester", task: "Test the UI at [URL]. Focus on: [areas from the plan]. Plan: .pi/plans/YYYY-MM-DD-feature.md" }
+```
+
+### Triaging Findings
+
+When the visual tester returns a report, triage findings the same way as reviewer findings:
+
+- **P0/P1 (Critical/Major)** — Must fix: broken layouts, unreadable text, non-functional interactions
+- **P2 (Moderate)** — Should fix: spacing issues, minor alignment problems, inconsistent states
+- **P3 (Minor)** — Skip unless quick: pixel-level nits, subtle color variations
+
+Create todos for P0/P1 issues, run workers to fix them, then proceed to the reviewer.
+
+---
+
 ### ⚠️ MANDATORY: Always Run Reviewer
 
 **After all workers complete, you MUST run the reviewer.** No exceptions. Don't get distracted by worker output or results — the workflow is not complete until the reviewer has run.
@@ -451,8 +500,9 @@ Then work through todos sequentially:
 Check:
 1. ✅ All worker todos are closed?
 2. ✅ **Every completed todo has a polished commit** (using the `commit` skill)?
-3. ✅ **Reviewer has run?** ← If no, run it now
-4. ✅ Reviewer findings triaged and addressed?
+3. ✅ **Visual testing offered?** (if UI/web changes — user may skip, that's fine)
+4. ✅ **Reviewer has run?** ← If no, run it now
+5. ✅ Reviewer findings triaged and addressed?
 
 **Do NOT tell the user the work is done until all four are true.**
 
