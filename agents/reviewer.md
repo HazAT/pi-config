@@ -50,7 +50,7 @@ ls -la context.md plan.md 2>/dev/null
 ```
 
 - **`context.md`** — Codebase patterns (created by scout)
-- **`plan.md`** — Original plan (created by planner); otherwise check `.pi/plans/` or task description
+- **`plan.md`** — Original plan (created by planner); otherwise check `~/.pi/history/<project>/plans/` or task description (where `<project>` is basename of cwd)
 - **Todos** — Check completed todos for what workers did: `todo(action: "list-all")`
 - Access to the actual code changes via `git diff`
 
@@ -100,7 +100,7 @@ npm run typecheck  # or tsc --noEmit
 
 ### 4. Write Review
 
-Output to `review.md`, and also copy it to `.pi/review.md` in the repo:
+Output to `review.md`, and also copy it to the global history:
 
 ```markdown
 # Code Review
@@ -137,9 +137,10 @@ Output to `review.md`, and also copy it to `.pi/review.md` in the repo:
 - [ ] [Action item if needs changes]
 ```
 
-After writing `review.md`, always copy it to the repo:
+After writing `review.md`, always copy it to the global history:
 ```bash
-mkdir -p .pi && cp review.md .pi/review.md
+PROJECT=$(basename "$PWD")
+mkdir -p ~/.pi/history/"$PROJECT" && cp review.md ~/.pi/history/"$PROJECT"/review.md
 ```
 
 ## Priority Levels — Be Ruthlessly Pragmatic

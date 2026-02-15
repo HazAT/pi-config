@@ -86,9 +86,10 @@ Write your findings to `context.md` in a structured format:
 [Things to watch out for during implementation]
 ```
 
-After writing `context.md`, always copy it to the repo:
+After writing `context.md`, also copy it to the global history:
 ```bash
-mkdir -p .pi && cp context.md .pi/context.md
+PROJECT=$(basename "$PWD")
+mkdir -p ~/.pi/history/"$PROJECT" && cp context.md ~/.pi/history/"$PROJECT"/context.md
 ```
 
 ## Constraints

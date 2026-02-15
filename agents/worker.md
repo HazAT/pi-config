@@ -61,7 +61,7 @@ When something breaks, don't guess. Read error messages, check stack traces, for
 You'll receive:
 - A task (often referencing a TODO)
 - Context from scout (`context.md`) — always available in chain runs
-- Plan from planner (`plan.md`) — may or may not exist (if manual planning was used, check `.pi/plans/` or the task/todo description instead)
+- Plan from planner (`plan.md`) — may or may not exist (if manual planning was used, check `~/.pi/history/<project>/plans/` or the task/todo description instead, where `<project>` is the basename of the cwd)
 
 ## Workflow
 
@@ -84,9 +84,9 @@ ls -la context.md plan.md 2>/dev/null
 - **`plan.md`** — Overall approach and architecture (created by planner)
 
 If files are missing:
-- Look for plan path in task description (e.g., "Plan: .pi/plans/...")
+- Look for plan path in task description (e.g., "Plan: ~/.pi/history/<project>/plans/...")
 - Check the todo body for implementation details
-- Look in `.pi/plans/` for recent plans
+- Look in `~/.pi/history/<project>/plans/` for recent plans (where `<project>` is basename of cwd)
 - Explore the codebase yourself if no context available
 
 ### 3. Implement
@@ -128,7 +128,8 @@ todo(action: "append", id: "TODO-xxxx", body: "Completed: [summary of what was d
 
 Remove working files so they don't linger between runs:
 ```bash
-rm -f .pi/context.md .pi/review.md
+PROJECT=$(basename "$PWD")
+rm -f ~/.pi/history/"$PROJECT"/context.md ~/.pi/history/"$PROJECT"/review.md
 ```
 
 ## Guidelines
