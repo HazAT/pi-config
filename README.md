@@ -195,9 +195,9 @@ Specialized subagents for delegated workflows. Provided by this config, powered 
 ```typescript
 { chain: [
   { agent: "scout", task: "Gather context for [feature]. Key files: [list relevant files]" },
-  { agent: "worker", task: "Implement TODO-xxxx. Plan: .pi/plans/YYYY-MM-DD-feature.md" },
-  { agent: "worker", task: "Implement TODO-yyyy. Plan: .pi/plans/YYYY-MM-DD-feature.md" },
-  { agent: "reviewer", task: "Review implementation. Plan: .pi/plans/YYYY-MM-DD-feature.md" }
+  { agent: "worker", task: "Implement TODO-xxxx. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md" },
+  { agent: "worker", task: "Implement TODO-yyyy. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md" },
+  { agent: "reviewer", task: "Review implementation. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md" }
 ]}
 ```
 
@@ -244,7 +244,7 @@ Extensions add functionality to pi — commands, tools, shortcuts, and hooks.
 | **soul.ts** | Loads SOUL.md and prepends it to the system prompt on every turn |
 | **execute-command.ts** | `execute_command` tool — self-invoke slash commands like `/answer`, `/reload` |
 | **answer.ts** | `/answer` command + `Ctrl+.` — extracts questions from last message into interactive Q&A UI |
-| **todos.ts** | `/todos` command + `todo` tool — file-based todo management in `.pi/todos/` with locking, assignments, and TUI |
+| **todos.ts** | `/todos` command + `todo` tool — file-based todo management in `~/.pi/history/<project>/todos/` with locking, assignments, and TUI |
 | **review.ts** | `/review` command — code review for PRs, branches, commits, or uncommitted changes |
 | **tmux-status.ts** | Shows running pi tmux sessions in the footer status bar with `ptmux` attach commands |
 | **context-filter** | `.gitignore`-style control over which context files and skills appear in the system prompt |
@@ -283,7 +283,7 @@ See the [context-filter README](extensions/context-filter/README.md) for more de
 | Command | Shortcut | Description |
 |---------|----------|-------------|
 | `/answer` | `Ctrl+.` | Extract questions from last assistant message into interactive Q&A |
-| `/todos` | — | Visual todo manager for file-based todos in `.pi/todos/` |
+| `/todos` | — | Visual todo manager for file-based todos in `~/.pi/history/<project>/todos/` |
 | `/review` | — | Interactive code review (PR, branch, commit, uncommitted changes) |
 | `/end-review` | — | Complete review session and return to original position |
 

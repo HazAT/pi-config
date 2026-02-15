@@ -228,9 +228,9 @@ You can execute slash commands yourself using the `execute_command` tool:
 ```typescript
 { chain: [
   { agent: "scout", task: "Gather context for [feature]. Key files: [list relevant files]" },
-  { agent: "worker", task: "Implement TODO-xxxx. Use the commit skill to write a polished, descriptive commit message. Mark the todo as done. Plan: .pi/plans/YYYY-MM-DD-feature.md" },
-  { agent: "worker", task: "Implement TODO-yyyy. Use the commit skill to write a polished, descriptive commit message. Mark the todo as done. Plan: .pi/plans/YYYY-MM-DD-feature.md" },
-  { agent: "reviewer", task: "Review implementation. Plan: .pi/plans/YYYY-MM-DD-feature.md" }
+  { agent: "worker", task: "Implement TODO-xxxx. Use the commit skill to write a polished, descriptive commit message. Mark the todo as done. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md" },
+  { agent: "worker", task: "Implement TODO-yyyy. Use the commit skill to write a polished, descriptive commit message. Mark the todo as done. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md" },
+  { agent: "reviewer", task: "Review implementation. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md" }
 ]}
 ```
 

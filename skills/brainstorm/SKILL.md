@@ -60,7 +60,7 @@ Phase 8: Review
 If you're about to edit or create source files, STOP and check:
 
 1. ✅ Did you complete Phase 4 (design validation)?
-2. ✅ Did you write a plan to `.pi/plans/`?
+2. ✅ Did you write a plan to `~/.pi/history/<project>/plans/`?
 3. ✅ Did you create todos?
 
 If any answer is NO and the user didn't explicitly skip → you're cutting corners. Go back.
@@ -213,7 +213,9 @@ Once the design is validated:
 
 > "Design is solid. Let me write up the plan."
 
-Create: `.pi/plans/YYYY-MM-DD-[plan-name].md`
+Create: `~/.pi/history/<project>/plans/YYYY-MM-DD-[plan-name].md`
+
+> `<project>` = basename of the current working directory (e.g., `my-app` for `/Users/haza/Projects/my-app`)
 
 ### Write the Full Plan
 
@@ -297,7 +299,7 @@ todo(action: "create", title: "Task 1: [description]", tags: ["plan-name"], body
 
 **Todo body includes:**
 ```markdown
-Plan: .pi/plans/YYYY-MM-DD-plan-name.md
+Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-plan-name.md
 
 ## Task
 [What needs to be done]
@@ -352,13 +354,13 @@ Keep the name short and descriptive (e.g., `feat/jwt-auth`, `fix/null-response`,
 
 ```typescript
 // First todo — always use the commit skill for a polished, descriptive commit
-{ agent: "worker", task: "Implement TODO-xxxx. Use the commit skill to write a polished, descriptive commit message. Mark the todo as done. Plan: .pi/plans/YYYY-MM-DD-feature.md" }
+{ agent: "worker", task: "Implement TODO-xxxx. Use the commit skill to write a polished, descriptive commit message. Mark the todo as done. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md" }
 
 // Check result, then second todo
-{ agent: "worker", task: "Implement TODO-yyyy. Use the commit skill to write a polished, descriptive commit message. Mark the todo as done. Plan: .pi/plans/YYYY-MM-DD-feature.md" }
+{ agent: "worker", task: "Implement TODO-yyyy. Use the commit skill to write a polished, descriptive commit message. Mark the todo as done. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md" }
 
 // After all todos complete, review the feature branch against main
-{ agent: "reviewer", task: "Review the feature branch against main. Plan: .pi/plans/YYYY-MM-DD-feature.md" }
+{ agent: "reviewer", task: "Review the feature branch against main. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md" }
 ```
 
 ### Handling Reviewer Findings
@@ -378,7 +380,7 @@ When the reviewer returns with issues, **act on the important ones**:
 
 3. **Kick off workers to fix them:**
    ```typescript
-   { agent: "worker", task: "Fix TODO-xxxx (from review). Use the commit skill to write a polished, descriptive commit message. Mark the todo as done. Plan: .pi/plans/..." }
+   { agent: "worker", task: "Fix TODO-xxxx (from review). Use the commit skill to write a polished, descriptive commit message. Mark the todo as done. Plan: ~/.pi/history/<project>/plans/..." }
    ```
 
 4. **Don't re-review minor fixes** — only run reviewer again if fixes were substantial
@@ -413,7 +415,7 @@ Ask the user before proceeding:
 Once prerequisites are confirmed:
 
 ```typescript
-{ agent: "visual-tester", task: "Test the UI at [URL]. Focus on: [areas from the plan]. Plan: .pi/plans/YYYY-MM-DD-feature.md" }
+{ agent: "visual-tester", task: "Test the UI at [URL]. Focus on: [areas from the plan]. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md" }
 ```
 
 ### Triaging Findings
@@ -435,7 +437,7 @@ Create todos for P0/P1 issues, run workers to fix them, then proceed to the revi
 
 ```typescript
 // This is NOT optional. Always end with:
-{ agent: "reviewer", task: "Review the feature branch against main. Plan: .pi/plans/YYYY-MM-DD-feature.md" }
+{ agent: "reviewer", task: "Review the feature branch against main. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md" }
 ```
 
 ### Why Not Chains?
