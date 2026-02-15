@@ -230,6 +230,7 @@ Skills provide specialized instructions for specific tasks. They're loaded on-de
 | **brainstorm** | Planning a new feature or significant change | Structured brainstorming: investigate → clarify → explore → validate design → write plan → create todos → execute with subagents |
 | **code-simplifier** | Simplifying or cleaning up code | Refines code for clarity, consistency, and maintainability while preserving functionality |
 | **commit** | Making git commits | Create conventional commits with proper format |
+| **dev-environment** | Docker/OrbStack service management | Manage Docker Compose dev environments — start, stop, configure services with OrbStack `.orb.local` domains |
 | **github** | Working with GitHub | Interact with GitHub using `gh` CLI — issues, PRs, CI runs |
 | **tmux** | Running background processes, servers, debuggers, REPLs | Manage tmux sessions with private sockets — start, monitor, and clean up processes |
 

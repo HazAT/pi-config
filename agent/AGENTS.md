@@ -263,6 +263,7 @@ Skills provide specialized instructions for specific tasks. Load them when the c
 |---------|---------------|
 | User wants to brainstorm / build something significant | `brainstorm` |
 | Making git commits (always — every commit must be polished and descriptive) | `commit` |
+| Starting, stopping, or configuring Docker/OrbStack services | `dev-environment` |
 | Working with GitHub | `github` |
 | Asked to simplify/clean up/refactor code | `code-simplifier` |
 
