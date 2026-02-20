@@ -46,7 +46,7 @@ Phase 6: Create Todos
     ↓
 Phase 6.5: Create Feature Branch
     ↓
-Phase 7: Execute with Subagents (each todo → polished commit)
+Phase 7: Execute with Subagents (scout first → workers → polished commits)
     ↓
 Phase 7.5: Visual Testing (optional, UI/web changes only)
     ↓
@@ -341,27 +341,62 @@ Keep the name short and descriptive (e.g., `feat/jwt-auth`, `fix/null-response`,
 
 ## Phase 7: Execute with Subagents
 
-**Use simple, sequential subagent calls** — not chains. Chains are fragile; if any step fails, everything stops. Instead, call subagents one at a time with explicit context.
+**Always start with a scout, then run workers sequentially.** The scout gathers context about all relevant files upfront so workers spend less time on discovery and more time on implementation.
 
 ### The Pattern
 
-1. **Run worker for each todo** — one at a time, waiting for completion
-2. **Check results** — verify files were created/modified correctly
-3. **Handle failures** — if a worker fails, diagnose and retry or fix manually
-4. **Run reviewer last** — only after all todos are complete
+1. **Run scout first** — gathers context about all files relevant to the plan, writes `context.md`
+2. **Run worker for each todo** — one at a time, each referencing the scout's context
+3. **Check results** — verify files were created/modified correctly
+4. **Handle failures** — if a worker fails, diagnose and retry or fix manually
+5. **Run reviewer last** — only after all todos are complete
+
+### Why Scout First?
+
+Workers are expensive (Sonnet). Every minute a worker spends grepping and reading files to orient itself is wasted. The scout (Haiku) is fast and cheap — it maps out the codebase, identifies key files, notes patterns and conventions, and hands that context to each worker. Workers still do their own targeted discovery (reading specific functions, checking types), but they start with a strong baseline instead of from scratch.
 
 ### Example
 
 ```typescript
-// First todo — always use the commit skill for a polished, descriptive commit
-{ agent: "worker", task: "Implement TODO-xxxx. Use the commit skill to write a polished, descriptive commit message. Mark the todo as done. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md" }
+// Step 1: Scout gathers context for the entire plan
+{ agent: "scout", task: "Gather context for implementing [feature]. Key areas: [list from plan]. Read the plan at ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md and identify all files that will be created or modified. Map out existing patterns, types, imports, and conventions that workers will need." }
 
-// Check result, then second todo
-{ agent: "worker", task: "Implement TODO-yyyy. Use the commit skill to write a polished, descriptive commit message. Mark the todo as done. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md" }
+// Step 2: Workers execute todos sequentially — each gets the scout's context
+{ agent: "worker", task: "Implement TODO-xxxx. Use the commit skill to write a polished, descriptive commit message. Mark the todo as done. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md\n\nScout context (use as your starting baseline — you can still look around but this covers the key files):\n{read context.md from chain_dir or ~/.pi/history/<project>/context.md}" }
+
+// Check result, then next todo with same scout context
+{ agent: "worker", task: "Implement TODO-yyyy. Use the commit skill to write a polished, descriptive commit message. Mark the todo as done. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md\n\nScout context (use as your starting baseline — you can still look around but this covers the key files):\n{read context.md from chain_dir or ~/.pi/history/<project>/context.md}" }
 
 // After all todos complete, review the feature branch against main
 { agent: "reviewer", task: "Review the feature branch against main. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md" }
 ```
+
+### Practical Implementation
+
+The scout writes its findings to `context.md` (and copies to `~/.pi/history/<project>/context.md`). Before spawning each worker, **read the scout's context file and paste it into the worker's task**:
+
+```typescript
+// 1. Run scout
+subagent({ agent: "scout", task: "Gather context for [feature]. Read the plan at ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md. Identify all files that will be created/modified, map existing patterns, types, and conventions." })
+
+// 2. Read the scout's output
+const scoutContext = read("~/.pi/history/<project>/context.md")
+
+// 3. Pass it to each worker
+subagent({ agent: "worker", task: `Implement TODO-xxxx. Use the commit skill to write a polished, descriptive commit message. Mark the todo as done. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md
+
+Scout context (your starting baseline — still do targeted discovery as needed, but this covers the key files and patterns):
+${scoutContext}` })
+```
+
+### What the Scout Should Cover
+
+Tell the scout to focus on:
+- **Files from the plan** — read the plan, identify every file mentioned
+- **Adjacent files** — imports, types, utilities that those files depend on
+- **Patterns** — how similar features are implemented in the codebase
+- **Conventions** — naming, file structure, error handling style
+- **Types/interfaces** — key type definitions workers will need
 
 ### Handling Reviewer Findings
 
