@@ -281,5 +281,6 @@ Skills provide specialized instructions for specific tasks. Load them when the c
 | Working with GitHub | `github` |
 | Asked to simplify/clean up/refactor code | `code-simplifier` |
 | Merge conflicts from upstream or another repo | `manifest-merge-conflicts` |
+| Reading, reviewing, or analyzing a pi session JSONL file | `session-reader` |
 
 **The `commit` skill is mandatory for every single commit.** No quick `git commit -m "fix stuff"` — every commit gets the full treatment with a descriptive subject and body.
