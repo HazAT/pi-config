@@ -7,6 +7,12 @@
       "env": {
         "PLAYWRITER_AUTO_ENABLE": "1"
       }
+    },
+    "spark": {
+      "url": "http://localhost:8081/mcp",
+      "headers": {
+        "Authorization": "Bearer test123"
+      }
     }
   }
 }
