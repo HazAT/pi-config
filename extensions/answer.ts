@@ -72,11 +72,10 @@ Example output:
   ]
 }`;
 
-const CODEX_MODEL_ID = "gpt-5.1-codex-mini";
 const HAIKU_MODEL_ID = "claude-haiku-4-5";
 
 /**
- * Prefer Codex mini for extraction when available, otherwise fallback to haiku or the current model.
+ * Prefer Haiku for extraction (fast, cheap), otherwise fallback to the current model.
  */
 async function selectExtractionModel(
 	currentModel: Model<Api>,
@@ -85,25 +84,15 @@ async function selectExtractionModel(
 		getApiKey: (model: Model<Api>) => Promise<string | undefined>;
 	},
 ): Promise<Model<Api>> {
-	const codexModel = modelRegistry.find("openai-codex", CODEX_MODEL_ID);
-	if (codexModel) {
-		const apiKey = await modelRegistry.getApiKey(codexModel);
+	const haikuModel = modelRegistry.find("anthropic", HAIKU_MODEL_ID);
+	if (haikuModel) {
+		const apiKey = await modelRegistry.getApiKey(haikuModel);
 		if (apiKey) {
-			return codexModel;
+			return haikuModel;
 		}
 	}
 
-	const haikuModel = modelRegistry.find("anthropic", HAIKU_MODEL_ID);
-	if (!haikuModel) {
-		return currentModel;
-	}
-
-	const apiKey = await modelRegistry.getApiKey(haikuModel);
-	if (!apiKey) {
-		return currentModel;
-	}
-
-	return haikuModel;
+	return currentModel;
 }
 
 /**
