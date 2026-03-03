@@ -200,20 +200,20 @@ export default function (pi: ExtensionAPI) {
       // Guard against re-entrant judge calls
       if (judgeInProgress) return;
 
-      // Consecutive limit check — give up before even calling judge
-      if (consecutiveInterventions >= maxInterventions) {
-        await ctx.abort();
-        pi.sendUserMessage(
-          "[Watchdog] Giving up after " + maxInterventions + " intervention attempts. The current operation was cancelled. Please review and decide how to proceed.",
-          { deliverAs: "followUp" }
-        );
-        enabled = false;
-        updateStatusBar();
-        return;
-      }
-
       judgeInProgress = true;
       try {
+        // Consecutive limit check — give up before even calling judge
+        if (consecutiveInterventions >= maxInterventions) {
+          await ctx.abort();
+          pi.sendUserMessage(
+            "[Watchdog] Giving up after " + maxInterventions + " intervention attempts. The current operation was cancelled. Please review and decide how to proceed.",
+            { deliverAs: "followUp" }
+          );
+          enabled = false;
+          updateStatusBar();
+          return;
+        }
+
         const summary = formatSessionSummary(ctx);
         const judgment = await callJudge(pi, summary, timeSinceActivity, consecutiveInterventions);
 
@@ -243,6 +243,9 @@ export default function (pi: ExtensionAPI) {
             ctx.compact();
           }
         }
+      } catch {
+        // Swallow errors from abort/sendUserMessage — the watchdog should never
+        // crash the session. If intervention fails, we'll try again next tick.
       } finally {
         judgeInProgress = false;
       }
@@ -300,8 +303,22 @@ export default function (pi: ExtensionAPI) {
         return "Watchdog disabled (🙈).";
       }
 
-      if (arg === "on" || arg === "") {
+      if (arg === "on") {
+        enabled = true;
+        consecutiveInterventions = 0;
+        lastActivityTimestamp = Date.now();
+        updateStatusBar();
+        startTimer(ctx);
+        return `Watchdog enabled (🐵 ${getIntervalMinutes()}m).`;
+      }
+
+      if (arg === "") {
         enabled = !enabled;
+        if (enabled) {
+          consecutiveInterventions = 0;
+          lastActivityTimestamp = Date.now();
+          startTimer(ctx);
+        }
         updateStatusBar();
         return enabled
           ? `Watchdog enabled (🐵 ${getIntervalMinutes()}m).`
