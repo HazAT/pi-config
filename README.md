@@ -34,10 +34,7 @@ That's it. Extensions, skills, agents, and prompts update instantly.
 ### What setup.sh does
 
 1. Creates `settings.json` with the right packages (if it doesn't exist)
-2. Installs git packages via `pi install`:
-   - [pi-subagents](https://github.com/nicobailon/pi-subagents) — `subagent` tool for delegating tasks
-   - [pi-mcp-adapter](https://github.com/nicobailon/pi-mcp-adapter) — MCP server integration
-   - [pi-smart-sessions](https://github.com/HazAT/pi-smart-sessions) — AI-generated session names
+2. Installs all git packages via `pi install` (see [Packages](#packages) below)
 3. Runs `npm install` for extensions with dependencies (claude-tool)
 
 ---
@@ -72,6 +69,8 @@ Loaded on-demand when the context matches.
 | **session-reader** | Reading and analyzing pi session JSONL files |
 | **skill-creator** | Scaffolding new agent skills |
 | **tmux** | Driving interactive CLIs via tmux |
+| **presentation-creator** | Creating data-driven presentation slides with React, Vite, and Recharts |
+| **glimpse** | Showing native macOS UI — dialogs, forms, charts, floating widgets |
 | **visual-tester** | Visual testing web UIs with Playwriter MCP |
 
 ### Extensions
@@ -91,6 +90,19 @@ Loaded on-demand when the context matches.
 ### AGENTS.md
 
 [`AGENTS.md`](AGENTS.md) defines core principles (proactive mindset, keep it simple, read before edit, verify before done, etc.), agent delegation patterns, skill triggers, and commit strategy.
+
+### Packages
+
+Installed via `pi install` and managed in `settings.json`.
+
+| Package | Description |
+|---------|-------------|
+| [pi-subagents](https://github.com/HazAT/pi-subagents) | `subagent` tool for delegating tasks to specialized agents |
+| [pi-mcp-adapter](https://github.com/nicobailon/pi-mcp-adapter) | MCP server integration |
+| [pi-smart-sessions](https://github.com/HazAT/pi-smart-sessions) | AI-generated session names |
+| [pi-parallel](https://github.com/HazAT/pi-parallel) | Parallel web search, extract, research, and enrich tools |
+| [glimpse](https://github.com/HazAT/glimpse) | Native macOS UI from scripts — dialogs, forms, visualizations, floating widgets |
+| [pi-cmux](https://github.com/sasha-computer/pi-cmux) | cmux integration — context-aware notifications, sidebar status, browser/workspace tools |
 
 ### MCP Servers
 
@@ -118,6 +130,14 @@ Loaded on-demand when the context matches.
 | `todo` | todos extension | Manage file-based todos (list, create, update, claim, close) |
 | `subagent` | pi-subagents | Delegate tasks to agents with chains and parallel execution |
 | `subagent_status` | pi-subagents | Check async subagent run status |
+| `parallel_search` | pi-parallel | Search the public web with AI-powered search |
+| `parallel_extract` | pi-parallel | Extract clean markdown from external websites |
+| `parallel_research` | pi-parallel | Deep async research synthesizing across many sources |
+| `parallel_enrich` | pi-parallel | Batch-enrich structured data with web-sourced information |
+| `glimpse` | glimpse | Show native macOS UI — dialogs, forms, visualizations, widgets |
+| `cmux_browser` | pi-cmux | Open URLs, take snapshots, click, fill forms inside cmux |
+| `cmux_workspace` | pi-cmux | List/create workspaces, split panes, send text to terminals |
+| `cmux_notify` | pi-cmux | Send targeted notifications inside cmux |
 
 ---
 

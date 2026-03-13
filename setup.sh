@@ -39,6 +39,9 @@ else
   echo '  "git:github.com/HazAT/pi-subagents"'
   echo '  "git:github.com/nicobailon/pi-mcp-adapter"'
   echo '  "git:github.com/HazAT/pi-smart-sessions"'
+  echo '  "git:github.com/HazAT/pi-parallel"'
+  echo '  "git:git@github.com:HazAT/glimpse.git"'
+  echo '  "git:git@github.com:sasha-computer/pi-cmux.git"'
   echo ""
 fi
 
@@ -47,6 +50,9 @@ echo "Installing packages..."
 pi install git:github.com/HazAT/pi-subagents 2>/dev/null || echo "  pi-subagents already installed"
 pi install git:github.com/nicobailon/pi-mcp-adapter 2>/dev/null || echo "  pi-mcp-adapter already installed"
 pi install git:github.com/HazAT/pi-smart-sessions 2>/dev/null || echo "  pi-smart-sessions already installed"
+pi install git:github.com/HazAT/pi-parallel 2>/dev/null || echo "  pi-parallel already installed"
+pi install git:git@github.com:HazAT/glimpse.git 2>/dev/null || echo "  glimpse already installed"
+pi install git:git@github.com:sasha-computer/pi-cmux.git 2>/dev/null || echo "  pi-cmux already installed"
 echo ""
 
 # Install claude-tool extension dependencies
