@@ -11,30 +11,30 @@ Scan the current project for agent instruction files from various tools, summari
 
 Search the project root for these files and directories:
 
-```bash
+```powershell
 # Agent instruction files (root-level)
-for f in CLAUDE.md AGENTS.md COPILOT.md .cursorrules .clinerules; do
-  [ -f "$f" ] && echo "FOUND: $f"
-done
+foreach ($file in "CLAUDE.md", "AGENTS.md", "COPILOT.md", ".cursorrules", ".clinerules") {
+  if (Test-Path $file) { Write-Host "FOUND: $file" }
+}
 
 # Agent config directories
-for d in .claude .cursor .github .pi; do
-  [ -d "$d" ] && echo "FOUND DIR: $d/"
-done
+foreach ($dir in ".claude", ".cursor", ".github", ".pi") {
+  if (Test-Path $dir -PathType Container) { Write-Host "FOUND DIR: $dir/" }
+}
 
 # Deeper convention files
-[ -f ".github/copilot-instructions.md" ] && echo "FOUND: .github/copilot-instructions.md"
+if (Test-Path ".github/copilot-instructions.md") { Write-Host "FOUND: .github/copilot-instructions.md" }
 
 # Claude Code rules, skills, and commands
-[ -d ".claude/rules" ] && echo "FOUND: .claude/rules/"
-[ -d ".claude/skills" ] && echo "FOUND: .claude/skills/"
-[ -d ".claude/commands" ] && echo "FOUND: .claude/commands/"
+if (Test-Path ".claude/rules" -PathType Container) { Write-Host "FOUND: .claude/rules/" }
+if (Test-Path ".claude/skills" -PathType Container) { Write-Host "FOUND: .claude/skills/" }
+if (Test-Path ".claude/commands" -PathType Container) { Write-Host "FOUND: .claude/commands/" }
 
 # Cursor rules
-[ -d ".cursor/rules" ] && echo "FOUND: .cursor/rules/"
+if (Test-Path ".cursor/rules" -PathType Container) { Write-Host "FOUND: .cursor/rules/" }
 
 # Pi project skills
-[ -d ".pi/skills" ] && echo "FOUND: .pi/skills/"
+if (Test-Path ".pi/skills" -PathType Container) { Write-Host "FOUND: .pi/skills/" }
 ```
 
 ## Step 2: Read and Summarize
@@ -105,71 +105,58 @@ Scan the codebase for things that look **shady, fishy, or dangerous**. This isn'
 Run these checks and report anything suspicious:
 
 **Hardcoded Secrets & Credentials**
-```bash
+```powershell
 # Look for hardcoded secrets, API keys, tokens, passwords
-rg -i --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}' \
-  '(api[_-]?key|secret|token|password|credential|auth)\s*[:=]\s*["\x27][^"\x27]{8,}' \
-  --type-not binary -l 2>/dev/null | head -20
+rg -i --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}' '(api[_-]?key|secret|token|password|credential|auth)\s*[:=]\s*["\x27][^"\x27]{8,}' --type-not binary -l | Select-Object -First 20
 
 # .env files committed to repo (should be gitignored)
-git ls-files --cached | grep -iE '\.env($|\.)' 2>/dev/null
+git ls-files --cached | Select-String -Pattern '\.env($|\.)'
 ```
 
 **Insecure Code Patterns**
-```bash
+```powershell
 # eval(), exec(), dangerouslySetInnerHTML, innerHTML assignments, shell injection vectors
-rg --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}' \
-  -e '\beval\s*\(' -e '\bexec\s*\(' -e 'dangerouslySetInnerHTML' \
-  -e '\.innerHTML\s*=' -e 'child_process' -e '\$\(.*\$\{' \
-  --type-not binary -l 2>/dev/null | head -20
+rg --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}' -e '\beval\s*\(' -e '\bexec\s*\(' -e 'dangerouslySetInnerHTML' -e '\.innerHTML\s*=' -e 'child_process' -e '\$\(.*\$\{' --type-not binary -l | Select-Object -First 20
 
 # Unparameterized SQL (string concatenation in queries)
-rg --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}' \
-  -e 'query\s*\(\s*[`"'"'"'].*\$\{' -e 'execute\s*\(\s*[`"'"'"'].*\+' \
-  --type-not binary -l 2>/dev/null | head -20
+rg --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}' -e 'query\s*\(\s*[`"'"'"'].*\$\{' -e 'execute\s*\(\s*[`"'"'"'].*\+' --type-not binary -l | Select-Object -First 20
 ```
 
 **Suspicious Dependencies**
-```bash
+```powershell
 # Check for install/postinstall scripts in dependencies (supply chain risk)
-[ -f package.json ] && cat package.json | grep -E '"(pre|post)install"' 2>/dev/null
+if (Test-Path .\package.json) { Select-String -Path .\package.json -Pattern '"(pre|post)install"' }
 
 # Look for wildcard or git dependencies (unpinned)
-[ -f package.json ] && rg '"[*]"|"git[+:]|"github:' package.json 2>/dev/null
+if (Test-Path .\package.json) { rg '"[*]"|"git[+:]|"github:' .\package.json }
 
 # Very outdated lock file vs package.json mismatch
-[ -f package-lock.json ] && [ package.json -nt package-lock.json ] && echo "WARN: package.json newer than lockfile"
-[ -f pnpm-lock.yaml ] && [ package.json -nt pnpm-lock.yaml ] && echo "WARN: package.json newer than lockfile"
+if ((Test-Path .\package-lock.json) -and ((Get-Item .\package.json).LastWriteTime -gt (Get-Item .\package-lock.json).LastWriteTime)) { Write-Host "WARN: package.json newer than lockfile" }
+if ((Test-Path .\pnpm-lock.yaml) -and ((Get-Item .\package.json).LastWriteTime -gt (Get-Item .\pnpm-lock.yaml).LastWriteTime)) { Write-Host "WARN: package.json newer than lockfile" }
 ```
 
 **Overly Permissive Configurations**
-```bash
+```powershell
 # CORS wildcards, disabled security headers, permissive CSP
-rg --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}' \
-  -e "origin:\s*['\"]?\*" -e 'Access-Control-Allow-Origin.*\*' \
-  -e "cors.*true" -e 'unsafe-inline' -e 'unsafe-eval' \
-  --type-not binary -l 2>/dev/null | head -10
+rg --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}' -e "origin:\s*['\"]?\*" -e 'Access-Control-Allow-Origin.*\*' -e "cors.*true" -e 'unsafe-inline' -e 'unsafe-eval' --type-not binary -l | Select-Object -First 10
 
 # Disabled TLS verification, insecure flags
-rg --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}' \
-  -e 'NODE_TLS_REJECT_UNAUTHORIZED.*0' -e 'rejectUnauthorized.*false' \
-  -e 'verify.*false' -e 'insecure.*true' \
-  --type-not binary -l 2>/dev/null | head -10
+rg --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}' -e 'NODE_TLS_REJECT_UNAUTHORIZED.*0' -e 'rejectUnauthorized.*false' -e 'verify.*false' -e 'insecure.*true' --type-not binary -l | Select-Object -First 10
 ```
 
 **File Permissions & Sensitive Files**
-```bash
+```powershell
 # Private keys, certificates, or database files in repo
-git ls-files --cached 2>/dev/null | grep -iE '\.(pem|key|p12|pfx|jks|keystore|sqlite|db)$' | head -10
+git ls-files --cached | Select-String -Pattern '\.(pem|key|p12|pfx|jks|keystore|sqlite|db)$' | Select-Object -First 10
 
 # Check .gitignore exists and covers basics
-if [ -f .gitignore ]; then
-  for pattern in '.env' 'node_modules' '.DS_Store'; do
-    grep -q "$pattern" .gitignore || echo "WARN: .gitignore missing $pattern"
-  done
-else
-  echo "WARN: No .gitignore file found"
-fi
+if (Test-Path .\.gitignore) {
+  foreach ($pattern in '.env', 'node_modules', '.DS_Store') {
+    if (-not (Select-String -Path .\.gitignore -Pattern [regex]::Escape($pattern) -Quiet)) { Write-Host "WARN: .gitignore missing $pattern" }
+  }
+} else {
+  Write-Host "WARN: No .gitignore file found"
+}
 ```
 
 ### How to Report

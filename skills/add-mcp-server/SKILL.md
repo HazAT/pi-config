@@ -13,7 +13,7 @@ Ask the user if not obvious from context:
 
 | Scope | Config File | When to Use |
 |-------|-------------|-------------|
-| **Global** | `~/.pi/agent/mcp.json` | Server used across all projects |
+| **Global** | `$HOME\.pi\agent\mcp.json` | Server used across all projects |
 | **Project** | `.pi/mcp.json` (project root) | Server specific to one project |
 
 Project-local configs override global ones. Both files use the same format.

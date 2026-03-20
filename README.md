@@ -4,9 +4,27 @@ My personal [pi](https://github.com/badlogic/pi) configuration — agents, skill
 
 ## Setup
 
-Clone this repo directly to `~/.pi/agent/` — pi auto-discovers everything from there (extensions, skills, agents, AGENTS.md, mcp.json). No symlinks, no manual wiring.
+Clone this repo directly to `$HOME\.pi\agent` on Windows — pi auto-discovers everything from there (extensions, skills, agents, AGENTS.md, mcp.json). No symlinks, no manual wiring. If you are on macOS or Linux, use the Bash setup path shown after the Windows steps.
 
-### Fresh machine
+### Fresh machine (Windows PowerShell)
+
+```powershell
+# 1. Install pi (https://github.com/badlogic/pi)
+
+# 2. Clone this repo as your agent config
+New-Item -ItemType Directory -Force -Path $HOME\.pi | Out-Null
+git clone git@github.com:HazAT/pi-config $HOME\.pi\agent
+
+# 3. Run setup (installs packages + writes local-first settings.json when needed)
+Set-Location $HOME\.pi\agent
+powershell -ExecutionPolicy Bypass -File .\setup.ps1
+
+# 4. Add your API keys to $HOME\.pi\agent\auth.json
+
+# 5. Restart pi
+```
+
+### Fresh machine (macOS / Linux)
 
 ```bash
 # 1. Install pi (https://github.com/badlogic/pi)
@@ -15,7 +33,7 @@ Clone this repo directly to `~/.pi/agent/` — pi auto-discovers everything from
 mkdir -p ~/.pi
 git clone git@github.com:HazAT/pi-config ~/.pi/agent
 
-# 3. Run setup (installs packages + extension deps)
+# 3. Run setup
 cd ~/.pi/agent && ./setup.sh
 
 # 4. Add your API keys to ~/.pi/agent/auth.json
@@ -25,8 +43,9 @@ cd ~/.pi/agent && ./setup.sh
 
 ### Updating
 
-```bash
-cd ~/.pi/agent && git pull
+```powershell
+Set-Location $HOME\.pi\agent
+git pull
 ```
 
 ---

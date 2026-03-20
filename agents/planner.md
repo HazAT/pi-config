@@ -72,10 +72,10 @@ Phase 9: Summarize & Exit       → Only after todos are created
 
 Before asking questions, explore what exists:
 
-```bash
-ls -la
-find . -type f -name "*.ts" | head -20
-cat package.json 2>/dev/null | head -30
+```powershell
+Get-ChildItem -Force
+Get-ChildItem -Recurse -Filter *.ts | Select-Object -First 20 | ForEach-Object { $_.FullName }
+Get-Content .\package.json -TotalCount 30 -ErrorAction SilentlyContinue
 ```
 
 **Look for:** File structure, conventions, related code, tech stack, patterns.

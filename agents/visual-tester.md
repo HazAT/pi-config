@@ -22,15 +22,15 @@ This is not a formal test suite — it's "let me look at this and check if it's 
 
 ### Getting Started
 
-```bash
+```powershell
 # 1. Find your target tab
-scripts/cdp.mjs list
+node .\scripts\cdp.mjs list
 
 # 2. Take a screenshot to verify connection
-scripts/cdp.mjs shot <target> /tmp/screenshot.png
+node .\scripts\cdp.mjs shot <target> $env:TEMP\screenshot.png
 
 # 3. Get the page structure
-scripts/cdp.mjs snap <target>
+node .\scripts\cdp.mjs snap <target>
 ```
 
 Use the targetId prefix (e.g. `6BE827FA`) for all commands. Read the **chrome-cdp** skill for the full command reference.
@@ -77,12 +77,12 @@ Test at key breakpoints:
 | Tablet | 768 | 1024 |
 | Desktop | 1280 | 800 |
 
-```bash
-scripts/cdp.mjs evalraw <target> Emulation.setDeviceMetricsOverride '{"width":375,"height":812,"deviceScaleFactor":2,"mobile":true}'
-scripts/cdp.mjs shot <target> /tmp/mobile.png
+```powershell
+node .\scripts\cdp.mjs evalraw <target> Emulation.setDeviceMetricsOverride '{"width":375,"height":812,"deviceScaleFactor":2,"mobile":true}'
+node .\scripts\cdp.mjs shot <target> $env:TEMP\mobile.png
 ```
 
-Reset after: `scripts/cdp.mjs evalraw <target> Emulation.clearDeviceMetricsOverride`
+Reset after: `node .\scripts\cdp.mjs evalraw <target> Emulation.clearDeviceMetricsOverride`
 
 Use judgment — not every page needs all breakpoints.
 
@@ -90,17 +90,17 @@ Use judgment — not every page needs all breakpoints.
 
 ## Interaction Testing
 
-```bash
+```powershell
 # Click elements
-scripts/cdp.mjs click <target> 'button[type="submit"]'
-scripts/cdp.mjs shot <target> /tmp/after-click.png
+node .\scripts\cdp.mjs click <target> 'button[type="submit"]'
+node .\scripts\cdp.mjs shot <target> $env:TEMP\after-click.png
 
 # Fill forms
-scripts/cdp.mjs click <target> 'input[name="email"]'
-scripts/cdp.mjs type <target> 'test@example.com'
+node .\scripts\cdp.mjs click <target> 'input[name="email"]'
+node .\scripts\cdp.mjs type <target> 'test@example.com'
 
 # Navigate
-scripts/cdp.mjs nav <target> http://localhost:3000/other-page
+node .\scripts\cdp.mjs nav <target> http://localhost:3000/other-page
 ```
 
 **Always screenshot after actions** to verify results.
@@ -109,12 +109,12 @@ scripts/cdp.mjs nav <target> http://localhost:3000/other-page
 
 ## Dark Mode
 
-```bash
-scripts/cdp.mjs evalraw <target> Emulation.setEmulatedMedia '{"features":[{"name":"prefers-color-scheme","value":"dark"}]}'
-scripts/cdp.mjs shot <target> /tmp/dark-mode.png
+```powershell
+node .\scripts\cdp.mjs evalraw <target> Emulation.setEmulatedMedia '{"features":[{"name":"prefers-color-scheme","value":"dark"}]}'
+node .\scripts\cdp.mjs shot <target> $env:TEMP\dark-mode.png
 ```
 
-Reset: `scripts/cdp.mjs evalraw <target> Emulation.setEmulatedMedia '{"features":[]}'`
+Reset: `node .\scripts\cdp.mjs evalraw <target> Emulation.setEmulatedMedia '{"features":[]}'`
 
 ---
 
@@ -168,10 +168,10 @@ Brief overall impression. Ready to ship?
 
 Before writing the report, restore the browser:
 
-```bash
-scripts/cdp.mjs evalraw <target> Emulation.clearDeviceMetricsOverride
-scripts/cdp.mjs evalraw <target> Emulation.setEmulatedMedia '{"features":[]}'
-scripts/cdp.mjs nav <target> <original-url>
+```powershell
+node .\scripts\cdp.mjs evalraw <target> Emulation.clearDeviceMetricsOverride
+node .\scripts\cdp.mjs evalraw <target> Emulation.setEmulatedMedia '{"features":[]}'
+node .\scripts\cdp.mjs nav <target> <original-url>
 ```
 
 ---

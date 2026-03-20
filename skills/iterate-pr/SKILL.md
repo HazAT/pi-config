@@ -18,7 +18,7 @@ Scripts are in the `scripts/` directory relative to this skill file. Resolve pat
 
 Fetches CI check status and extracts failure snippets from logs.
 
-```bash
+```powershell
 uv run scripts/fetch_pr_checks.py [--pr NUMBER]
 ```
 
@@ -38,7 +38,7 @@ Returns JSON:
 
 Fetches and categorizes PR review feedback by priority.
 
-```bash
+```powershell
 uv run scripts/fetch_pr_feedback.py [--pr NUMBER]
 ```
 
@@ -58,7 +58,7 @@ Each feedback item may include:
 
 ### 1. Identify PR
 
-```bash
+```powershell
 gh pr view --json number,url,headRefName
 ```
 
@@ -143,7 +143,7 @@ If local verification fails, fix before proceeding — do not push known-broken 
 **Use the `commit` skill** to create polished commits — do not `git commit -m "fix stuff"`.
 
 Then push:
-```bash
+```powershell
 git push
 ```
 
@@ -159,7 +159,7 @@ Poll CI status and review feedback in a loop instead of blocking:
    b. Address any new high/medium feedback immediately (same as step 3)
    c. If changes were needed, commit and push (this restarts CI), then continue polling
    d. Sleep 30 seconds, then repeat from sub-step 1
-5. After all checks pass, do a final feedback check: `sleep 10`, then run `scripts/fetch_pr_feedback.py`. Address any new high/medium feedback — if changes are needed, return to step 6.
+5. After all checks pass, do a final feedback check: `Start-Sleep -Seconds 10`, then run `scripts/fetch_pr_feedback.py`. Address any new high/medium feedback — if changes are needed, return to step 6.
 
 ### 8. Repeat
 

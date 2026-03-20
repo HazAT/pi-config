@@ -48,11 +48,11 @@ Cover the relevant areas without going down rabbit holes. Your output feeds othe
 
 ## Tools to Use
 
-```bash
+```powershell
 # Get the lay of the land
-ls -la
-find . -type f -name "*.ts" | head -30
-cat package.json 2>/dev/null | head -50
+Get-ChildItem -Force
+Get-ChildItem -Recurse -Filter *.ts | Select-Object -First 30 | ForEach-Object { $_.FullName }
+Get-Content .\package.json -TotalCount 50 -ErrorAction SilentlyContinue
 
 # Search for relevant code
 rg "pattern" --type ts -l

@@ -41,7 +41,7 @@ without needing `--workspace`.
 
 ### Create a new tab (surface) in the current workspace
 
-```bash
+```powershell
 cmux new-surface --type terminal
 # Returns: OK surface:<n> pane:<n> workspace:<n>
 ```
@@ -51,21 +51,21 @@ the current terminal in the same workspace.
 
 ### Create a new split pane
 
-```bash
+```powershell
 cmux new-split <left|right|up|down>
 cmux new-pane --direction <left|right|up|down> [--type terminal]
 ```
 
 ### Spawn a new workspace (for full isolation)
 
-```bash
+```powershell
 cmux new-workspace [--cwd <path>] [--command "<text>"]
 # Returns: OK workspace:<n>
 ```
 
 ### Send commands
 
-```bash
+```powershell
 cmux send --surface <ref> '<command>\n'
 ```
 
@@ -73,7 +73,7 @@ The `\n` sends Enter. Without it, text is typed but not executed.
 
 ### Read terminal output
 
-```bash
+```powershell
 cmux read-screen --surface <ref> [--lines <n>] [--scrollback]
 ```
 
@@ -83,14 +83,14 @@ cmux read-screen --surface <ref> [--lines <n>] [--scrollback]
 
 ### Close a surface / workspace
 
-```bash
+```powershell
 cmux close-surface --surface <ref>
 cmux close-workspace --workspace <ref>
 ```
 
 ### List workspaces and surfaces
 
-```bash
+```powershell
 cmux list-workspaces --json
 cmux list-panels                   # List surfaces in current workspace
 cmux tree --json                   # Full layout with all details
@@ -98,13 +98,13 @@ cmux tree --json                   # Full layout with all details
 
 ### Notifications
 
-```bash
+```powershell
 cmux notify --title "<text>" --body "<text>"
 ```
 
 ### Send special keys
 
-```bash
+```powershell
 cmux send-key --surface <ref> ctrl+c    # Interrupt
 cmux send-key --surface <ref> ctrl+d    # EOF
 cmux send-key --surface <ref> escape    # Escape
@@ -116,81 +116,81 @@ cmux send-key --surface <ref> escape    # Escape
 
 ### Pattern 1: Start a dev server in a new tab
 
-```bash
+```powershell
 # Create a tab and capture its surface ref
-SURFACE=$(cmux new-surface --type terminal | awk '{print $2}')
-sleep 0.5
+$surface = ((cmux new-surface --type terminal) -split ' ')[1]
+Start-Sleep -Milliseconds 500
 
 # Send the command
-cmux send --surface $SURFACE 'cd /path/to/project && npm run dev\n'
+cmux send --surface $surface "Set-Location C:\path\to\project; npm run dev`n"
 
 # Poll until ready
-for i in $(seq 1 30); do
-  OUTPUT=$(cmux read-screen --surface $SURFACE --lines 20)
-  if echo "$OUTPUT" | grep -qi "ready\|listening\|started\|compiled"; then
-    echo "Server is ready"
+for ($i = 0; $i -lt 30; $i++) {
+  $output = cmux read-screen --surface $surface --lines 20
+  if ($output -match 'ready|listening|started|compiled') {
+    Write-Host "Server is ready"
     break
-  fi
-  sleep 1
-done
+  }
+  Start-Sleep -Seconds 1
+}
 
 # ... do work against the server ...
 
 # Clean up when done
-cmux close-surface --surface $SURFACE
+cmux close-surface --surface $surface
 ```
 
 ### Pattern 2: Run tests in a tab and read results
 
-```bash
-SURFACE=$(cmux new-surface --type terminal | awk '{print $2}')
-sleep 0.5
-cmux send --surface $SURFACE 'cd /path/to/project && npm test\n'
-sleep 10
-cmux read-screen --surface $SURFACE --scrollback --lines 200
-cmux close-surface --surface $SURFACE
+```powershell
+$surface = ((cmux new-surface --type terminal) -split ' ')[1]
+Start-Sleep -Milliseconds 500
+cmux send --surface $surface "Set-Location C:\path\to\project; npm test`n"
+Start-Sleep -Seconds 10
+cmux read-screen --surface $surface --scrollback --lines 200
+cmux close-surface --surface $surface
 ```
 
 ### Pattern 3: Interactive session — send multiple commands
 
-```bash
-SURFACE=$(cmux new-surface --type terminal | awk '{print $2}')
-sleep 0.5
+```powershell
+$surface = ((cmux new-surface --type terminal) -split ' ')[1]
+Start-Sleep -Milliseconds 500
 
-cmux send --surface $SURFACE 'git status\n'
-sleep 1
-cmux read-screen --surface $SURFACE --lines 30
+cmux send --surface $surface "git status`n"
+Start-Sleep -Seconds 1
+cmux read-screen --surface $surface --lines 30
 
-cmux send --surface $SURFACE 'git log --oneline -5\n'
-sleep 1
-cmux read-screen --surface $SURFACE --lines 30
+cmux send --surface $surface "git log --oneline -5`n"
+Start-Sleep -Seconds 1
+cmux read-screen --surface $surface --lines 30
 
-cmux close-surface --surface $SURFACE
+cmux close-surface --surface $surface
 ```
 
 ### Pattern 4: Monitor multiple processes
 
-```bash
-S_API=$(cmux new-surface --type terminal | awk '{print $2}')
-S_WEB=$(cmux new-surface --type terminal | awk '{print $2}')
-sleep 0.5
+```powershell
+$apiSurface = ((cmux new-surface --type terminal) -split ' ')[1]
+$webSurface = ((cmux new-surface --type terminal) -split ' ')[1]
+Start-Sleep -Milliseconds 500
 
-cmux send --surface $S_API 'cd ./api && npm run dev\n'
-cmux send --surface $S_WEB 'cd ./web && npm run dev\n'
+cmux send --surface $apiSurface "Set-Location .\api; npm run dev`n"
+cmux send --surface $webSurface "Set-Location .\web; npm run dev`n"
 
 # Check on any of them
-sleep 3
-cmux read-screen --surface $S_API --lines 20
-cmux read-screen --surface $S_WEB --lines 20
+Start-Sleep -Seconds 3
+cmux read-screen --surface $apiSurface --lines 20
+cmux read-screen --surface $webSurface --lines 20
 
 # Clean up
-cmux close-surface --surface $S_API
-cmux close-surface --surface $S_WEB
+cmux close-surface --surface $apiSurface
+cmux close-surface --surface $webSurface
 ```
 
 ### Pattern 5: Split pane for side-by-side view
 
-```bash
+```powershell
 cmux new-split right   # Terminal split to the right
 cmux new-split down    # Terminal split below
 ```

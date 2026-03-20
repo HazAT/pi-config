@@ -29,7 +29,7 @@ Read the task to understand what was built and what approach was chosen. If a pl
 
 ### 2. Examine the Changes
 
-```bash
+```powershell
 # See recent commits
 git log --oneline -10
 
@@ -41,9 +41,9 @@ Adjust based on what the task says to review.
 
 ### 3. Run Tests (if applicable)
 
-```bash
-npm test 2>/dev/null
-npm run typecheck 2>/dev/null
+```powershell
+npm test 2>$null
+npm run typecheck 2>$null
 ```
 
 ### 4. Write Review

@@ -11,22 +11,22 @@ Use the `gh` CLI to interact with GitHub. Always specify `--repo owner/repo` whe
 ## Pull Requests
 
 Check CI status on a PR:
-```bash
+```powershell
 gh pr checks 55 --repo owner/repo
 ```
 
 List recent workflow runs:
-```bash
+```powershell
 gh run list --repo owner/repo --limit 10
 ```
 
 View a run and see which steps failed:
-```bash
+```powershell
 gh run view <run-id> --repo owner/repo
 ```
 
 View logs for failed steps only:
-```bash
+```powershell
 gh run view <run-id> --repo owner/repo --log-failed
 ```
 
@@ -35,7 +35,7 @@ gh run view <run-id> --repo owner/repo --log-failed
 The `gh api` command is useful for accessing data not available through other subcommands.
 
 Get PR with specific fields:
-```bash
+```powershell
 gh api repos/owner/repo/pulls/55 --jq '.title, .state, .user.login'
 ```
 
@@ -43,6 +43,6 @@ gh api repos/owner/repo/pulls/55 --jq '.title, .state, .user.login'
 
 Most commands support `--json` for structured output.  You can use `--jq` to filter:
 
-```bash
+```powershell
 gh issue list --repo owner/repo --json number,title --jq '.[] | "\(.number): \(.title)"'
 ```
