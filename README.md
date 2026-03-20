@@ -48,27 +48,48 @@ This config uses **subagents** — visible pi sessions spawned in cmux terminals
 
 Specialized roles with baked-in identity, workflow, and review rubrics.
 
-| Agent | Model | Purpose |
-|-------|-------|---------|
-| **planner** | Local default (strong local reasoning model) | Interactive brainstorming — clarify, explore, validate design, write plan, create todos |
-| **scout** | Local default (cheap, lightweight) | Fast codebase reconnaissance — gathers context without making changes |
-| **worker** | Local default | Implements tasks from todos, commits with polished messages |
-| **reviewer** | Local default, Codex when the review is worth spending | Reviews code for quality, security, correctness (review rubric baked in) |
-| **researcher** | Local default + hosted web tools only when needed | Deep research using parallel.ai tools plus repo analysis |
-| **visual-tester** | Local default | Visual QA — navigates web UIs via Chrome CDP, spots issues, produces reports |
-| **autoresearch** | Local default | Autonomous experiment loop — runs, measures, and optimizes iteratively |
+| Agent | Default execution | Codex escalation | Purpose |
+|-------|-------------------|------------------|---------|
+| **planner** | Local default model | Premium mode only, or Balanced when the design is unusually ambiguous/high-stakes | Interactive brainstorming — clarify, explore, validate design, write plan, create todos |
+| **scout** | Local default model | Only for unusually messy/high-value synthesis work | Fast codebase reconnaissance — gathers context without making changes |
+| **worker** | Local default model | Balanced/Premium for important implementation bursts where speed matters | Implements tasks from todos, commits with polished messages |
+| **reviewer** | Local default model | Balanced/Premium for important final review passes | Reviews code for quality, security, correctness (review rubric baked in) |
+| **researcher** | Local default model plus parallel web tools | Premium only when hosted synthesis is explicitly justified | Deep research using parallel.ai tools first, with local repo analysis by default |
+| **visual-tester** | Local default model | Rarely needed; keep local unless a hosted run is explicitly worth it | Visual QA — navigates web UIs via Chrome CDP, spots issues, produces reports |
+| **autoresearch** | Local default model | Never by default; hosted loops are an explicit opt-in | Autonomous experiment loop — runs, measures, and optimizes iteratively |
 
 ## Operating Modes
 
-The repo should stay **local-first by default**. Treat hosted models as an explicit spend decision, not the baseline. These three modes describe how aggressively to spend Codex usage.
+The repo is configured for a **local-first default** through LM Studio. Treat hosted Codex usage as an explicit routing decision, not the baseline.
 
-| Mode | Intent | Hosted models allowed | Agents that stay local |
-|------|--------|-----------------------|------------------------|
-| **Cheap** | Lowest-cost daily workflow | None | `scout`, `planner`, `worker`, `reviewer`, `researcher`, `visual-tester`, `autoresearch` |
-| **Balanced** | Local first, spend only on valuable execution/review | `worker` and `reviewer` on important tasks only | `scout`, `planner`, `researcher`, `visual-tester`, `autoresearch` |
-| **Premium** | Optimize for speed and stronger synthesis | `planner`, `worker`, and `reviewer` whenever the task is worth accelerating; `researcher` may use hosted research/synthesis when local repo analysis is not enough | `scout`, `visual-tester`, `autoresearch` by default |
+### Cheap mode
 
-### Cheap mode — local only
+**Local only.** Every agent stays on the repo default local model.
+
+- Hosted models allowed: none
+- Keep `scout`, `planner`, `worker`, `reviewer`, `researcher`, `visual-tester`, and `autoresearch` local
+- Best for reconnaissance, broad edits, iterative debugging, and routine planning
+
+### Balanced mode
+
+**Local first.** Only spend Codex on important implementation and review work.
+
+- Hosted models allowed: `worker`, `reviewer`
+- Keep `scout`, `planner`, `researcher`, `visual-tester`, and `autoresearch` local unless the user explicitly overrides that choice
+- Best for normal day-to-day work where quota matters but a strong implementation/review pass is sometimes worth it
+
+### Premium mode
+
+**Use Codex where speed is worth the spend.**
+
+- Hosted models allowed: `planner`, `worker`, `reviewer`
+- Keep `scout`, `visual-tester`, and `autoresearch` local by default because their work is usually cheaper locally
+- Let `researcher` use hosted synthesis only when the task genuinely needs external research plus stronger cross-source synthesis
+- Best for high-priority work where faster planning, implementation, and final review are worth the quota
+
+## Decision Guide: Local vs Codex Spend
+
+Use the default agent role first, then route with the same policy the `/answer` extractor now follows: **local model first, Codex only when explicitly allowed, otherwise stay on the current model**. That keeps routine work cheap without hiding the premium path when it is genuinely justified.
 
 Use this when the task is routine, exploratory, or mostly mechanical.
 
@@ -97,8 +118,8 @@ Use this when turnaround time matters more than hosted-model budget.
 - the task is narrow, high-value, and benefits from stronger implementation or review quality
 - you need a polished answer quickly and speed matters more than quota
 - the design problem is unusually complex, ambiguous, or full of tradeoffs
-- the final review is important enough that catching a subtle issue would save real time or risk
-- external research or cross-source synthesis is required and local repo context is not enough
+- the final review is important enough that an extra pass could prevent an expensive mistake
+- external research or cross-source synthesis is required and the local/parallel tool path is not enough
 
 ### Stay local when…
 

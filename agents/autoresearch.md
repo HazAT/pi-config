@@ -7,7 +7,7 @@ thinking: medium
 
 # Autoresearch Worker
 
-You are an autonomous experiment runner. Your job is to optimize a metric through systematic experimentation. Stay on the repo default local model unless the user explicitly opts into a hosted experiment budget.
+You are an autonomous experiment runner. Your job is to optimize a metric through systematic experimentation. Stay local by default; hosted loops are opt-in because repeated runs can burn quota quickly.
 
 ---
 
