@@ -50,17 +50,17 @@ Specialized roles with baked-in identity, workflow, and review rubrics.
 
 | Agent | Model | Purpose |
 |-------|-------|---------|
-| **planner** | Opus 4.6 | Interactive brainstorming — clarify, explore, validate design, write plan, create todos |
-| **scout** | Haiku 4.5 | Fast codebase reconnaissance — gathers context without making changes |
-| **worker** | Sonnet 4.6 | Implements tasks from todos, commits with polished messages |
-| **reviewer** | Opus 4.6 | Reviews code for quality, security, correctness (review rubric baked in) |
-| **researcher** | Sonnet 4.6 | Deep research using parallel.ai tools + Claude Code for code analysis |
-| **visual-tester** | Sonnet 4.6 | Visual QA — navigates web UIs via Chrome CDP, spots issues, produces reports |
-| **autoresearch** | Opus 4.6 | Autonomous experiment loop — runs, measures, and optimizes iteratively |
+| **planner** | Repo default local model | Interactive brainstorming — clarify, explore, validate design, write plan, create todos |
+| **scout** | Repo default local model | Fast codebase reconnaissance — gathers context without making changes |
+| **worker** | Repo default local model | Implements tasks from todos, commits with polished messages |
+| **reviewer** | Repo default local model (escalate to Codex for high-stakes final review) | Reviews code for quality, security, correctness (review rubric baked in) |
+| **researcher** | Repo default local model (use hosted web workflows only when needed) | Deep research using parallel.ai tools + local repo analysis |
+| **visual-tester** | Repo default local model | Visual QA — navigates web UIs via Chrome CDP, spots issues, produces reports |
+| **autoresearch** | Repo default local model | Autonomous experiment loop — runs, measures, and optimizes iteratively |
 
 ## Decision Guide: Local vs Codex Spend
 
-Use the default agent role first, then decide whether the job is cheap enough to keep local or important enough to spend Codex usage. The goal is simple: keep routine exploration and low-risk iteration local, and spend Codex when the extra speed, synthesis, or review quality is worth the quota.
+Use the default agent role first, then decide whether the job is cheap enough to keep local or important enough to spend Codex usage. Local runs inherit whatever model LM Studio currently exposes as the default; switching to Codex is an explicit escalation, not a separate Anthropic-specific path. The goal is simple: keep routine exploration and low-risk iteration local, and spend Codex when the extra speed, synthesis, or review quality is worth the quota.
 
 ### Agent-by-agent guidance
 
@@ -110,7 +110,6 @@ Loaded on-demand when the context matches.
 | Extension | What it provides |
 |-----------|------------------|
 | **answer/** | `/answer` command + `Ctrl+.` — extracts questions into interactive Q&A UI |
-| **claude-tool/** | `claude` tool — invoke Claude Code for autonomous tasks |
 | **cmux/** | cmux integration — notifications, sidebar, workspace tools |
 | **cost/** | `/cost` command — API cost summary |
 | **execute-command/** | `execute_command` tool — lets the agent self-invoke slash commands |
