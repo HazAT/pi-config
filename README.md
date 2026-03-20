@@ -105,6 +105,27 @@ Loaded on-demand when the context matches.
 | **presentation-creator** | Creating data-driven presentation slides |
 | **add-mcp-server** | Adding MCP server configurations |
 
+
+### Skill Classification
+
+All checked-in skills are now classified for a local-first + Codex-fallback workflow:
+
+| Skill | Classification | Notes |
+|---|---|---|
+| `commit` | keep | Local git workflow; added lightweight escalation guidance for unusually large diffs. |
+| `github` | keep | `gh`-driven and model-agnostic. |
+| `code-simplifier` | convert | Rewritten to remove Claude-specific assumptions and prefer local-first simplification. |
+| `learn-codebase` | convert | Kept the cross-tool scan, but rewrote it around generic instruction files and local scanning. |
+| `cmux` | keep | Purely local terminal orchestration. |
+| `session-reader` | convert | Still useful locally, but now uses repo-relative paths and generic model examples. |
+| `iterate-pr` | convert | Kept the CI/review loop and added local-first vs Codex escalation guidance. |
+| `skill-creator` | convert | Rewritten around portable Agent Skills guidance instead of Claude-only extensions. |
+| `add-mcp-server` | keep | Local configuration workflow; already model-agnostic. |
+| `frontend-design` | convert | Removed Claude-branded creative framing while keeping the design guidance. |
+| `presentation-creator` | convert | Kept the Sentry-specific workflow but removed Claude-specific path assumptions. |
+
+No skill in `skills/` is worth keeping in a Claude-only form. Where a skill still references runtime-specific features, treat them as optional extensions instead of the default path.
+
 ## Extensions
 
 | Extension | What it provides |

@@ -6,7 +6,13 @@ license: From mitsuhiko/agent-stuff
 
 # GitHub Skill
 
-Use the `gh` CLI to interact with GitHub. Always specify `--repo owner/repo` when not in a git directory, or use URLs directly.
+Use the `gh` CLI for GitHub operations. Prefer local CLI inspection first; escalate to Codex or another hosted model only when you need broader synthesis across large review threads, CI output, or repository history.
+
+## Basic Guidance
+
+- Run commands from the target repository when possible.
+- When outside a git directory, pass `--repo owner/repo` or use a full GitHub URL.
+- Prefer `--json` plus `--jq` when you need structured output for follow-up steps.
 
 ## Pull Requests
 
@@ -20,7 +26,7 @@ List recent workflow runs:
 gh run list --repo owner/repo --limit 10
 ```
 
-View a run and see which steps failed:
+View a run and inspect failed steps:
 ```bash
 gh run view <run-id> --repo owner/repo
 ```
@@ -32,16 +38,15 @@ gh run view <run-id> --repo owner/repo --log-failed
 
 ## API for Advanced Queries
 
-The `gh api` command is useful for accessing data not available through other subcommands.
+Use `gh api` when the standard subcommands do not expose the needed data.
 
-Get PR with specific fields:
 ```bash
 gh api repos/owner/repo/pulls/55 --jq '.title, .state, .user.login'
 ```
 
 ## JSON Output
 
-Most commands support `--json` for structured output.  You can use `--jq` to filter:
+Most `gh` commands support `--json` for machine-readable output.
 
 ```bash
 gh issue list --repo owner/repo --json number,title --jq '.[] | "\(.number): \(.title)"'

@@ -4,33 +4,34 @@ description: "Read this skill before making git commits"
 license: From mitsuhiko/agent-stuff
 ---
 
-Create a git commit for the current changes using Conventional Commits format with a **polished, highly descriptive** message.
+Create a git commit for the current changes using Conventional Commits format with a polished, descriptive message.
+
+## Routing Guidance
+
+Use local tooling for the normal workflow: inspect the diff, stage intentionally, and write a strong subject/body pair. Escalate to a stronger hosted model only when the diff is unusually large or you need help synthesizing a concise commit narrative across many files.
 
 ## Format
 
 `<type>(<scope>): <summary>`
 
 - `type` REQUIRED. Use `feat` for new features, `fix` for bug fixes. Other common types: `docs`, `refactor`, `chore`, `test`, `perf`.
-- `scope` OPTIONAL. Short noun in parentheses for the affected area (e.g., `api`, `parser`, `ui`).
-- `summary` REQUIRED. Short, imperative, <= 72 chars, no trailing period.
+- `scope` OPTIONAL. Use a short noun for the affected area.
+- `summary` REQUIRED. Keep it imperative, under 72 characters, with no trailing period.
 
 ## Notes
 
-- Body is **strongly encouraged** — always include one unless the change is trivially obvious (e.g., fixing a typo). The body should explain **what** changed, **why** it changed, the approach taken, and any notable decisions. A reader of `git log` should understand the change without looking at the diff.
-- Do NOT include breaking-change markers or footers.
-- Do NOT add sign-offs (no `Signed-off-by`).
-- Only commit; do NOT push.
-- If it is unclear whether a file should be included, ask the user which files to commit.
-- Treat any caller-provided arguments as additional commit guidance. Common patterns:
-  - Freeform instructions should influence scope, summary, and body.
-  - File paths or globs should limit which files to commit. If files are specified, only stage/commit those unless the user explicitly asks otherwise.
-  - If arguments combine files and instructions, honor both.
+- Include a body unless the change is trivially obvious.
+- Explain what changed, why it changed, and any notable decisions.
+- Do not add breaking-change footers or sign-offs.
+- Only commit. Do not push.
+- If the requested commit scope is ambiguous, clarify before staging unrelated files.
+- Treat caller-provided arguments as commit guidance. File paths limit scope; freeform instructions should shape the message.
 
 ## Steps
 
-1. Infer from the prompt if the user provided specific file paths/globs and/or additional instructions.
-2. Review `git status` and `git diff` to understand the current changes (limit to argument-specified files if provided).
-3. (Optional) Run `git log -n 50 --pretty=format:%s` to see commonly used scopes.
-4. If there are ambiguous extra files, ask the user for clarification before committing.
-5. Stage only the intended files (all changes if no files specified).
-6. Run `git commit -m "<subject>"` (and `-m "<body>"` if needed).
+1. Infer any file-path restrictions or extra commit instructions from the prompt.
+2. Review `git status` and `git diff` for the intended files.
+3. Optionally inspect recent commit subjects with `git log -n 50 --pretty=format:%s` to match local scope naming.
+4. Stage only the intended files.
+5. Write a Conventional Commit subject and an informative body.
+6. Run `git commit -m "<subject>"` and add a second `-m` for the body when needed.

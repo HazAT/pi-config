@@ -38,7 +38,7 @@ Interpret creatively and make unexpected choices that feel genuinely designed fo
 
 **IMPORTANT**: Match implementation complexity to the aesthetic vision. Maximalist designs need elaborate code with extensive animations and effects. Minimalist or refined designs need restraint, precision, and careful attention to spacing, typography, and subtle details. Elegance comes from executing the vision well.
 
-Remember: Claude is capable of extraordinary creative work. Don't hold back, show what can truly be created when thinking outside the box and committing fully to a distinctive vision.
+Remember: strong frontend work comes from committing to a distinctive vision and executing it precisely. Don't default to generic patterns when a more intentional design fits the brief better.
 
 ### Frontend: Cursor Pointer on Interactive Elements
 

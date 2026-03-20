@@ -5,88 +5,83 @@ description: Efficiently read and analyze pi agent session JSONL files. Use when
 
 # Read Pi Sessions
 
-Parse pi session JSONL files into readable, structured output. Sessions live in `~/.pi/agent/sessions/<project>/` as `.jsonl` files.
+Parse pi session JSONL files into readable output. Start locally with the bundled script; escalate to a stronger hosted model only when you need deeper synthesis across many long sessions.
+
+## Routing Guidance
+
+| Prefer local when... | Escalate when... |
+|---|---|
+| You need an overview of one session. | You need synthesis across many long sessions or subagents. |
+| You are tracing tools, errors, or costs from structured logs. | You need higher-order pattern extraction from extensive session history. |
+| The bundled parser already surfaces what happened. | The user wants a polished cross-session narrative after local extraction. |
+
+Resolve script and reference paths relative to this skill directory.
 
 ## Step 1: Identify the Session File
 
-Resolve the session file path. Sessions are stored at:
-```
+Resolve the session file path. Sessions are typically stored at:
+
+```text
 ~/.pi/agent/sessions/--<path-with-dashes>--/<timestamp>_<uuid>.jsonl
 ```
 
-If the user provides a partial path or project name, find the file:
+If the user provides only a project name or partial path, find recent candidates first:
+
 ```bash
-ls -t ~/.pi/agent/sessions/*<project>*/*.jsonl | head -5
+find ~/.pi/agent/sessions -path '*<project>*/*.jsonl' -print | sort | tail -5
 ```
 
 ## Step 2: Start with an Overview
 
-Always start with the overview to understand the session before diving deeper:
+Always begin with the overview mode:
 
 ```bash
-uv run ${CLAUDE_SKILL_ROOT}/scripts/read_session.py <path> --mode overview
+uv run ./skills/session-reader/scripts/read_session.py <path> --mode overview
 ```
 
-This shows: session metadata (model, project, cost), turn count, and a summary of every turn with timestamps and tool calls used.
+This shows session metadata, turn count, timestamps, and a summary of each turn with tool usage.
 
-## Step 3: Read Specific Content
-
-Based on what's needed, use the appropriate mode:
+## Step 3: Read the Right Level of Detail
 
 | Goal | Command |
-|------|---------|
-| See user/assistant conversation only | `--mode conversation` |
-| See everything including tool I/O | `--mode full` |
-| See what tools were called and results | `--mode tools` |
-| Analyze token usage and costs | `--mode costs` |
-| See subagent delegations with task/status/cost/paths | `--mode subagents` |
+|---|---|
+| Conversation only | `uv run ./skills/session-reader/scripts/read_session.py <path> --mode conversation` |
+| Full transcript including tool I/O | `uv run ./skills/session-reader/scripts/read_session.py <path> --mode full` |
+| Tool calls and results | `uv run ./skills/session-reader/scripts/read_session.py <path> --mode tools` |
+| Token usage and cost | `uv run ./skills/session-reader/scripts/read_session.py <path> --mode costs` |
+| Subagent runs and linked artifacts | `uv run ./skills/session-reader/scripts/read_session.py <path> --mode subagents` |
 
-### Controlling Output Size
-
-For large sessions, use `--offset` and `--limit` to page through user turns:
+### Control output size
 
 ```bash
-# Skip first 3 user turns, show next 5
-uv run ${CLAUDE_SKILL_ROOT}/scripts/read_session.py <path> --mode conversation --offset 3 --limit 5
+uv run ./skills/session-reader/scripts/read_session.py <path> --mode conversation --offset 3 --limit 5
+uv run ./skills/session-reader/scripts/read_session.py <path> --mode full --max-content 0
+uv run ./skills/session-reader/scripts/read_session.py <path> --mode full --max-content 500
 ```
 
-Control content truncation with `--max-content`:
+## Step 4: Drill into Subagent Sessions
+
+When the parent session contains subagent calls, inspect the referenced subagent JSONL files with the same script:
 
 ```bash
-# Show full tool outputs (no truncation)
-uv run ${CLAUDE_SKILL_ROOT}/scripts/read_session.py <path> --mode full --max-content 0
-
-# Shorter previews (500 chars per block)
-uv run ${CLAUDE_SKILL_ROOT}/scripts/read_session.py <path> --mode full --max-content 500
+uv run ./skills/session-reader/scripts/read_session.py ~/.pi/agent/sessions/<project>/subagent-artifacts/<hash>_worker.jsonl --mode overview
+uv run ./skills/session-reader/scripts/read_session.py "$TMPDIR/pi-subagent-session-<id>/run-0/<timestamp>.jsonl" --mode overview
 ```
 
-## Step 3b: Drill into Subagent Sessions
+Subagent sessions use the same format, so `overview`, `full`, and the other modes work unchanged.
 
-When a session contains subagent calls, the `--mode subagents` output shows paths to each subagent's own JSONL session. Read those with the same script:
+## Step 5: Report Findings
 
-```bash
-# Persistent artifact copy (always available)
-uv run ${CLAUDE_SKILL_ROOT}/scripts/read_session.py ~/.pi/agent/sessions/<project>/subagent-artifacts/<hash>_worker.jsonl --mode overview
-
-# Temp session file (may be cleaned up)
-uv run ${CLAUDE_SKILL_ROOT}/scripts/read_session.py $TMPDIR/pi-subagent-session-<id>/run-0/<timestamp>.jsonl --mode overview
-```
-
-Subagent sessions use the exact same JSONL format. The `overview` and `full` modes all handle subagent data — they show inline summaries with agent, model, cost, duration, and status for each subagent run.
-
-## Step 4: Report Findings
-
-When summarizing a session for the user, include:
-
-1. **What was the goal** — first user message intent
-2. **What happened** — key steps taken, tools used, decisions made
-3. **Outcome** — did it succeed? What was the final state?
-4. **Notable issues** — errors, retries, workarounds, wasted effort
-5. **Cost** — total spend and token usage
+When summarizing a session, include:
+1. the original goal
+2. the major steps and tools used
+3. the outcome or stopping point
+4. notable failures, retries, or wasted effort
+5. cost and token usage when relevant
 
 ## Session Format Reference
 
-If you need to understand the raw JSONL format (for custom parsing), read:
-`${CLAUDE_SKILL_ROOT}/references/session-format.md`
+If you need the raw format details, read:
+`skills/session-reader/references/session-format.md`
 
-The critical thing to know: message content is nested at `line.message.content`, NOT `line.content`. Content is always an array of typed objects (`text`, `toolCall`, `thinking`). Tool results are separate message entries with `role: "toolResult"`.
+Key detail: message content lives at `line.message.content`, not `line.content`. Content blocks are typed arrays such as `text`, `toolCall`, and `thinking`. Tool outputs appear as separate `role: "toolResult"` entries.

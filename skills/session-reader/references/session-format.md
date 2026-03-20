@@ -71,7 +71,7 @@ Every line has a `type` field:
   "content": [...],
   "api": "anthropic-messages",
   "provider": "anthropic",
-  "model": "claude-opus-4-6",
+  "model": "example-local-model",
   "usage": {
     "input": 3, "output": 209,
     "cacheRead": 0, "cacheWrite": 11576, "totalTokens": 11788,
@@ -142,7 +142,7 @@ Each result object contains:
 | `task` | string | The task prompt given to the agent |
 | `exitCode` | number | 0 = success, non-zero = failure |
 | `messages` | array | Full conversation (same format as session messages, inline) |
-| `model` | string | Model used (e.g., "claude-sonnet-4-6:minimal") |
+| `model` | string | Model used (e.g., "provider/model-name") |
 | `usage` | object | `{input, output, cacheRead, cacheWrite, cost, turns}` |
 | `progressSummary` | object | `{toolCount, tokens, durationMs}` |
 | `skills` | array | Skill names loaded (e.g., ["commit"]) |

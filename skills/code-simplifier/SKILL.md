@@ -1,80 +1,85 @@
 ---
 name: code-simplifier
-description: Simplifies and refines code for clarity, consistency, and maintainability while preserving all functionality. Use when asked to "simplify code", "clean up code", "refactor for clarity", "improve readability", or review recently modified code for elegance. Focuses on project-specific best practices.
-model: opus
+description: Simplifies and refines code for clarity, consistency, and maintainability while preserving functionality. Use when asked to "simplify code", "clean up code", "refactor for clarity", "improve readability", or review recently modified code for elegance. Focuses on project-specific best practices and local-first execution.
+license: Adapted from getsentry/skills
 ---
 
 <!--
-Based on Anthropic's code-simplifier agent:
+Adapted from Anthropic's code-simplifier guidance:
 https://github.com/anthropics/claude-plugins-official/blob/main/plugins/code-simplifier/agents/code-simplifier.md
 -->
 
 # Code Simplifier
 
-You are an expert code simplification specialist focused on enhancing code clarity, consistency, and maintainability while preserving exact functionality. Your expertise lies in applying project-specific best practices to simplify and improve code without altering its behavior. You prioritize readable, explicit code over overly compact solutions.
+Simplify code without changing behavior. Use local reasoning first and escalate to a stronger hosted model only for broad, high-risk refactors or ambiguous design tradeoffs.
+
+## Routing Guidance
+
+| Prefer local when... | Escalate when... |
+|---|---|
+| The scope is a small or medium cleanup. | The cleanup spans many modules with intertwined behavior. |
+| The desired end state is already clear from the codebase. | You need stronger synthesis to compare competing designs. |
+| You can verify behavior with existing tests quickly. | The change is risky enough that an extra high-quality reasoning pass is justified. |
 
 ## Refinement Principles
 
 ### 1. Preserve Functionality
 
-Never change what the code does - only how it does it. All original features, outputs, and behaviors must remain intact.
+Never change what the code does—only how it does it. Keep features, outputs, side effects, and observable behavior intact unless the user explicitly asks for a behavior change.
 
 ### 2. Apply Project Standards
 
-Follow the established coding standards from CLAUDE.md including:
+Read the project convention files that apply to the edited paths, then follow those standards instead of inventing new ones.
 
-- Use ES modules with proper import sorting and extensions
-- Prefer `function` keyword over arrow functions
-- Use explicit return type annotations for top-level functions
-- Follow proper React component patterns with explicit Props types
-- Use proper error handling patterns (avoid try/catch when possible)
-- Maintain consistent naming conventions
+Examples of standards to honor when they exist:
+- module and import ordering conventions
+- typing and function declaration preferences
+- component structure and state-management patterns
+- error-handling patterns already used in the project
+- naming, testing, and formatting conventions
 
 ### 3. Enhance Clarity
 
 Simplify code structure by:
-
-- Reducing unnecessary complexity and nesting
-- Eliminating redundant code and abstractions
-- Improving readability through clear variable and function names
-- Consolidating related logic
-- Removing unnecessary comments that describe obvious code
-- **Avoiding nested ternary operators** - prefer switch statements or if/else chains for multiple conditions
-- Choosing clarity over brevity - explicit code is often better than overly compact code
+- reducing unnecessary complexity and nesting
+- eliminating redundant code and one-off abstractions
+- improving readability with clearer names
+- consolidating closely related logic
+- removing comments that only restate obvious code
+- avoiding nested ternaries when a straightforward `if`/`else` chain is clearer
+- choosing clarity over brevity
 
 ### 4. Maintain Balance
 
-Avoid over-simplification that could:
-
-- Reduce code clarity or maintainability
-- Create overly clever solutions that are hard to understand
-- Combine too many concerns into single functions or components
-- Remove helpful abstractions that improve code organization
-- Prioritize "fewer lines" over readability (e.g., nested ternaries, dense one-liners)
-- Make the code harder to debug or extend
+Do not over-simplify in ways that:
+- make the code more clever and less readable
+- collapse multiple concerns into one function
+- remove abstractions that still earn their keep
+- optimize for fewer lines instead of maintainability
+- make debugging or future edits harder
 
 ### 5. Focus Scope
 
-Only refine code that has been recently modified or touched in the current session, unless explicitly instructed to review a broader scope.
+Only refine code that was recently modified or that the user explicitly asked you to review. Avoid opportunistic refactors outside the working area.
 
 ## Refinement Process
 
-1. **Identify** the recently modified code sections
-2. **Analyze** for opportunities to improve elegance and consistency
-3. **Apply** project-specific best practices and coding standards
-4. **Ensure** all functionality remains unchanged
-5. **Verify** the refined code is simpler and more maintainable
-6. **Document** only significant changes that affect understanding
+1. Identify the code in scope.
+2. Read surrounding files to understand the local pattern.
+3. Decide which simplifications genuinely improve clarity.
+4. Apply the smallest set of edits that achieves the improvement.
+5. Verify that behavior is unchanged with targeted checks.
+6. Summarize only the meaningful design or readability changes.
 
 ## Examples
 
-### Before: Nested Ternaries
+### Before: Nested ternaries
 
 ```typescript
 const status = isLoading ? 'loading' : hasError ? 'error' : isComplete ? 'complete' : 'idle';
 ```
 
-### After: Clear Switch Statement
+### After: Clear conditional flow
 
 ```typescript
 function getStatus(isLoading: boolean, hasError: boolean, isComplete: boolean): string {
@@ -85,36 +90,16 @@ function getStatus(isLoading: boolean, hasError: boolean, isComplete: boolean): 
 }
 ```
 
-### Before: Overly Compact
+### Before: Overly compact pipeline
 
 ```typescript
 const result = arr.filter(x => x > 0).map(x => x * 2).reduce((a, b) => a + b, 0);
 ```
 
-### After: Clear Steps
+### After: Clear intermediate steps
 
 ```typescript
 const positiveNumbers = arr.filter(x => x > 0);
-const doubled = positiveNumbers.map(x => x * 2);
-const sum = doubled.reduce((a, b) => a + b, 0);
-```
-
-### Before: Redundant Abstraction
-
-```typescript
-function isNotEmpty(arr: unknown[]): boolean {
-  return arr.length > 0;
-}
-
-if (isNotEmpty(items)) {
-  // ...
-}
-```
-
-### After: Direct Check
-
-```typescript
-if (items.length > 0) {
-  // ...
-}
+const doubledNumbers = positiveNumbers.map(x => x * 2);
+const total = doubledNumbers.reduce((a, b) => a + b, 0);
 ```

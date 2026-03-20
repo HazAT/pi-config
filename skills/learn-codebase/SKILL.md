@@ -1,83 +1,85 @@
 ---
 name: learn-codebase
-description: Discover project conventions and surface security concerns. Use when starting work in a new or unfamiliar project, when asked to "learn the codebase", "check project rules", "what are the conventions", "onboard to this project", or "anything shady in this codebase". Scans agent config files (.claude/, .cursor/, CLAUDE.md, etc.) and runs a security/smell sweep for hardcoded secrets, insecure patterns, suspicious dependencies, and dangerous configurations.
+description: Discover project conventions and surface security concerns. Use when starting work in a new or unfamiliar project, when asked to "learn the codebase", "check project rules", "what are the conventions", "onboard to this project", or "anything shady in this codebase". Scans agent config files from multiple tools and runs a quick security and code-smell sweep.
 ---
 
 # Learn Codebase Conventions
 
-Scan the current project for agent instruction files from various tools, summarize the conventions, and optionally register discovered skills in `.pi/settings.json`.
+Scan the project for instruction files, summarize the conventions that actually matter, and note security issues worth immediate attention. Use local inspection first; escalate to a stronger hosted model only if the repository is unusually large or the conventions conflict in subtle ways.
+
+## Routing Guidance
+
+| Prefer local when... | Escalate when... |
+|---|---|
+| You are onboarding to a normal-sized repo. | The repo is large enough that summarizing conventions needs stronger synthesis. |
+| You mainly need file discovery and concise summaries. | The project contains many overlapping rule systems and conflicts that need arbitration. |
+| The sweep is a straightforward local scan. | You need a second-pass architectural summary across many packages. |
 
 ## Step 1: Scan for Convention Files
 
-Search the project root for these files and directories:
+Search the project root for instruction files and rule directories from common agent tools:
 
 ```bash
-# Agent instruction files (root-level)
-for f in CLAUDE.md AGENTS.md COPILOT.md .cursorrules .clinerules; do
+for f in AGENTS.md CLAUDE.md COPILOT.md .cursorrules .clinerules; do
   [ -f "$f" ] && echo "FOUND: $f"
 done
 
-# Agent config directories
 for d in .claude .cursor .github .pi; do
   [ -d "$d" ] && echo "FOUND DIR: $d/"
 done
 
-# Deeper convention files
 [ -f ".github/copilot-instructions.md" ] && echo "FOUND: .github/copilot-instructions.md"
-
-# Claude Code rules, skills, and commands
 [ -d ".claude/rules" ] && echo "FOUND: .claude/rules/"
 [ -d ".claude/skills" ] && echo "FOUND: .claude/skills/"
 [ -d ".claude/commands" ] && echo "FOUND: .claude/commands/"
-
-# Cursor rules
 [ -d ".cursor/rules" ] && echo "FOUND: .cursor/rules/"
-
-# Pi project skills
+[ -d ".cursor/skills" ] && echo "FOUND: .cursor/skills/"
 [ -d ".pi/skills" ] && echo "FOUND: .pi/skills/"
 ```
 
 ## Step 2: Read and Summarize
 
-For each discovered file, read its contents and extract key conventions:
+For each discovered file or directory, extract only the actionable conventions:
 
-1. **Root instruction files** (`CLAUDE.md`, `AGENTS.md`, `.cursorrules`, etc.) — read fully, these are the primary project rules
-2. **Rule directories** (`.claude/rules/`, `.cursor/rules/`) — read each rule file
-3. **Commands** (`.claude/commands/`) — read each command file. These are reusable prompt workflows from Claude Code (e.g., PR creation, release scripts, review checklists). Summarize what each command does.
-4. **Skills directories** (`.claude/skills/`, `.cursor/skills/`) — list available skills and read their descriptions
-5. **Settings files** (`.claude/settings.json`) — note permissions and configuration
+1. **Root instruction files** (`AGENTS.md`, `CLAUDE.md`, `.cursorrules`, etc.) — read them fully.
+2. **Rule directories** (`.claude/rules/`, `.cursor/rules/`) — read rule files individually.
+3. **Command directories** (`.claude/commands/`, similar tool-specific command folders) — summarize reusable workflows when they materially affect how work should be done.
+4. **Skills directories** (`.claude/skills/`, `.cursor/skills/`, `.pi/skills/`) — list what exists and note relevant descriptions.
+5. **Settings files** (for example `.claude/settings.json`) — note permissions, model/provider defaults, and workflow constraints.
 
-Present a structured summary to the user:
+Present a structured summary like this:
 
-```
+```markdown
 ## Project Conventions Summary
 
 ### Build & Run
-- Package manager: [npm/pnpm/yarn/bun]
-- Dev command: [command]
-- Test command: [command]
+- Package manager: ...
+- Dev command: ...
+- Test command: ...
 
 ### Code Style
-- [Key style rules]
+- ...
 
 ### Architecture
-- [Key patterns, structure]
+- ...
 
 ### Agent-Specific Rules
-- [Any rules targeted at AI agents]
+- ...
 
-### Available Commands (from .claude/commands/)
-- [command-name] — [what it does]
+### Reusable Commands
+- ...
 
-### Available Skills (from other tools)
-- [List skills found in .claude/skills, .cursor/skills]
+### Available Skills
+- ...
 ```
 
-Focus on actionable information. Skip boilerplate and obvious conventions.
+Skip boilerplate. Focus on rules that will change how you work.
 
-## Step 3: Register External Skills
+## Step 3: Suggest Skill Registration Only If Useful
 
-If `.claude/skills/` or other skill directories exist, suggest registering them in `.pi/settings.json` so pi can use them too:
+If the project contains external skill directories that the current toolchain can load, suggest registering them in the local agent configuration. Do this only when the repository clearly uses shared skills and the user would benefit from the integration.
+
+Example:
 
 ```json
 {
@@ -85,84 +87,54 @@ If `.claude/skills/` or other skill directories exist, suggest registering them 
 }
 ```
 
-Ask the user if they want to create or update `.pi/settings.json` with the discovered skill paths. Only do this if skills were actually found.
+Do not modify configuration unless the user asked for it or the current task clearly requires it.
 
-## Step 4: Note What to Remember
+## Step 4: Highlight What to Remember
 
-After summarizing, highlight the **top 3-5 things to keep in mind** while working in this project. These are the conventions most likely to be violated if forgotten — things like:
-- Specific commit message formats
-- Required co-author lines
-- Mandatory test patterns
-- Forbidden patterns or anti-patterns
-- Package manager preferences (don't use npm when pnpm is required)
+After the summary, list the top 3-5 conventions most likely to matter during implementation, such as:
+- required commit message formats
+- mandatory tests or validation commands
+- forbidden patterns
+- package manager requirements
+- agent workflow requirements
 
-## Step 5: Security & Smell Sweep
+## Step 5: Run a Security and Smell Sweep
 
-Scan the codebase for things that look **shady, fishy, or dangerous**. This isn't a full audit — it's a quick sweep to surface anything the user should be aware of. Flag real concerns, not hypotheticals.
+Run a lightweight local sweep for real concerns, not hypotheticals.
 
-### What to Scan
+### Hardcoded secrets
 
-Run these checks and report anything suspicious:
-
-**Hardcoded Secrets & Credentials**
 ```bash
-# Look for hardcoded secrets, API keys, tokens, passwords
-rg -i --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}' \
-  '(api[_-]?key|secret|token|password|credential|auth)\s*[:=]\s*["\x27][^"\x27]{8,}' \
-  --type-not binary -l 2>/dev/null | head -20
+rg -i --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}'   '(api[_-]?key|secret|token|password|credential|auth)'   --type-not binary -n . | head -20
 
-# .env files committed to repo (should be gitignored)
 git ls-files --cached | grep -iE '\.env($|\.)' 2>/dev/null
 ```
 
-**Insecure Code Patterns**
-```bash
-# eval(), exec(), dangerouslySetInnerHTML, innerHTML assignments, shell injection vectors
-rg --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}' \
-  -e '\beval\s*\(' -e '\bexec\s*\(' -e 'dangerouslySetInnerHTML' \
-  -e '\.innerHTML\s*=' -e 'child_process' -e '\$\(.*\$\{' \
-  --type-not binary -l 2>/dev/null | head -20
+### Insecure code patterns
 
-# Unparameterized SQL (string concatenation in queries)
-rg --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}' \
-  -e 'query\s*\(\s*[`"'"'"'].*\$\{' -e 'execute\s*\(\s*[`"'"'"'].*\+' \
-  --type-not binary -l 2>/dev/null | head -20
+```bash
+rg --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}'   -e '\beval\s*\(' -e '\bexec\s*\(' -e 'dangerouslySetInnerHTML'   -e '\.innerHTML\s*=' -e 'child_process' -e '\$\(.*\$\{'   --type-not binary -n . | head -20
+
+rg --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}'   -e 'query\s*\(\s*[`"'"'"'].*\$\{' -e 'execute\s*\(\s*[`"'"'"'].*\+'   --type-not binary -n . | head -20
 ```
 
-**Suspicious Dependencies**
+### Suspicious dependencies and config
+
 ```bash
-# Check for install/postinstall scripts in dependencies (supply chain risk)
-[ -f package.json ] && cat package.json | grep -E '"(pre|post)install"' 2>/dev/null
-
-# Look for wildcard or git dependencies (unpinned)
-[ -f package.json ] && rg '"[*]"|"git[+:]|"github:' package.json 2>/dev/null
-
-# Very outdated lock file vs package.json mismatch
+[ -f package.json ] && rg '"(pre|post)install)"|"[*]"|"git[+:]|"github:' package.json 2>/dev/null
 [ -f package-lock.json ] && [ package.json -nt package-lock.json ] && echo "WARN: package.json newer than lockfile"
 [ -f pnpm-lock.yaml ] && [ package.json -nt pnpm-lock.yaml ] && echo "WARN: package.json newer than lockfile"
+
+rg --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}'   -e "origin:\s*['"]?\*" -e 'Access-Control-Allow-Origin.*\*'   -e "cors.*true" -e 'unsafe-inline' -e 'unsafe-eval'   --type-not binary -n . | head -10
+
+rg --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}'   -e 'NODE_TLS_REJECT_UNAUTHORIZED.*0' -e 'rejectUnauthorized.*false'   -e 'verify.*false' -e 'insecure.*true'   --type-not binary -n . | head -10
 ```
 
-**Overly Permissive Configurations**
-```bash
-# CORS wildcards, disabled security headers, permissive CSP
-rg --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}' \
-  -e "origin:\s*['\"]?\*" -e 'Access-Control-Allow-Origin.*\*' \
-  -e "cors.*true" -e 'unsafe-inline' -e 'unsafe-eval' \
-  --type-not binary -l 2>/dev/null | head -10
+### Sensitive files and ignore rules
 
-# Disabled TLS verification, insecure flags
-rg --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}' \
-  -e 'NODE_TLS_REJECT_UNAUTHORIZED.*0' -e 'rejectUnauthorized.*false' \
-  -e 'verify.*false' -e 'insecure.*true' \
-  --type-not binary -l 2>/dev/null | head -10
-```
-
-**File Permissions & Sensitive Files**
 ```bash
-# Private keys, certificates, or database files in repo
 git ls-files --cached 2>/dev/null | grep -iE '\.(pem|key|p12|pfx|jks|keystore|sqlite|db)$' | head -10
 
-# Check .gitignore exists and covers basics
 if [ -f .gitignore ]; then
   for pattern in '.env' 'node_modules' '.DS_Store'; do
     grep -q "$pattern" .gitignore || echo "WARN: .gitignore missing $pattern"
@@ -172,36 +144,18 @@ else
 fi
 ```
 
-### How to Report
+## Step 6: Report Findings Clearly
 
-Present findings in a dedicated section with severity tags. Be direct — no sugarcoating, but also no false alarms.
+Use severity tags and state plainly whether anything needs attention:
 
-```
+```markdown
 ## 🚩 Security & Code Smell Findings
 
-### [P0] Hardcoded API key in src/config.ts
-Line 42 has a Stripe secret key directly in source code.
-This should be in an environment variable, not committed.
-
 ### [P1] .env file tracked by git
-`.env.production` is committed and contains database credentials.
-Add to `.gitignore` and rotate the exposed credentials.
-
-### [P2] eval() usage in src/utils/parser.ts
-Used to parse user-supplied expressions. Consider a safe parser
-like `JSON.parse()` or a sandboxed evaluator instead.
+...
 
 ### ✅ Nothing Concerning
-[If sweep is clean, say so explicitly — don't manufacture findings.]
+...
 ```
 
-**Severity guide (same as review rubric):**
-- **[P0]** — Actively dangerous. Exposed secrets, SQL injection, RCE vectors. Fix now.
-- **[P1]** — Genuine risk. Someone will get bitten by this. Should fix soon.
-- **[P2]** — Worth knowing about. Not urgent, but the user should be aware.
-
-**Do NOT flag:**
-- Test files using eval/exec for testing purposes
-- Known development-only insecure configs (like localhost CORS in dev servers)
-- Theoretical issues with no concrete exploit path in this codebase
-- Dependencies that are simply old (that's not a security finding without a known CVE)
+Flag real evidence, not speculation.
