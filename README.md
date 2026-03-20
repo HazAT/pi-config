@@ -58,6 +58,35 @@ Specialized roles with baked-in identity, workflow, and review rubrics.
 | **visual-tester** | Sonnet 4.6 | Visual QA — navigates web UIs via Chrome CDP, spots issues, produces reports |
 | **autoresearch** | Opus 4.6 | Autonomous experiment loop — runs, measures, and optimizes iteratively |
 
+## Decision Guide: Local vs Codex Spend
+
+Use the default agent role first, then decide whether the job is cheap enough to keep local or important enough to spend Codex usage. The goal is simple: keep routine exploration and low-risk iteration local, and spend Codex when the extra speed, synthesis, or review quality is worth the quota.
+
+### Agent-by-agent guidance
+
+- **`scout`** — run **locally by default**. It is mostly reconnaissance, codebase scanning, and context gathering, so the work is usually cheap and parallel-friendly without spending Codex usage. Spend Codex only if you specifically need higher-quality synthesis from a large, messy codebase.
+- **`planner`** — run **locally for ordinary planning**. Use Codex only when the design is unusually complex, the requirements are genuinely ambiguous, or the planning step needs stronger structured reasoning than your normal local flow.
+- **`worker`** — use **Codex for focused implementation bursts** where speed and code quality justify the quota cost. Keep it **local for broad exploratory work, large low-risk edits, or tasks where the main cost is mechanical churn rather than hard implementation judgment**.
+- **`reviewer`** — use **Codex for final review on important changes** where catching subtle correctness, quality, or security issues matters. Keep it **local for cheap intermediate checks** while work is still moving quickly.
+- **`researcher`** — use it in **hosted mode only when external web research or synthesis is actually needed**. If the answer is already in the repo or can be verified locally, do not spend for hosted research.
+- **`autoresearch`** — keep it **local only** unless you are explicitly choosing to spend on hosted experimentation. Its loop can consume a lot of usage over time, so hosted runs should be an intentional opt-in rather than the default.
+
+### Spend Codex when…
+
+- the task is narrow, high-value, and benefits from stronger implementation or review quality
+- you need a polished answer quickly and the speed matters more than the quota cost
+- the design problem is unusually complex, ambiguous, or full of tradeoffs
+- the final review is important enough that an extra pass could prevent an expensive mistake
+- external research or cross-source synthesis is required and local context is not enough
+
+### Stay local when…
+
+- you are still gathering context, scouting files, or doing ordinary planning
+- the work is broad, exploratory, or mostly mechanical editing
+- you want cheap intermediate checks before the final pass
+- the answer already exists in the repo, local tools, or easily verifiable local state
+- hosted spend has not been explicitly justified by complexity, importance, or research needs
+
 ## Skills
 
 Loaded on-demand when the context matches.
