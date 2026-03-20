@@ -10,7 +10,7 @@ description: |
 
 Use this skill when you need to run processes in separate terminals you can
 observe and control — dev servers, test watchers, build processes, or any
-long-running task.
+long-running task. This is a local workflow; do not spend Codex just to supervise terminal panes.
 
 **Prerequisite:** You must be running inside cmux (check for `CMUX_SOCKET_PATH`
 in the environment). If it's not set, these commands won't work.

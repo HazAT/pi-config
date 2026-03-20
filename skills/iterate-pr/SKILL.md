@@ -6,7 +6,7 @@ license: Adapted from getsentry/skills
 
 # Iterate on PR Until CI Passes
 
-Continuously iterate on the current branch until all CI checks pass and review feedback is addressed.
+Continuously iterate on the current branch until all CI checks pass and review feedback is addressed. Keep the data gathering and mechanical fix loop local by default; spend Codex only for high-value implementation or review synthesis that local models are not handling well.
 
 **Requires**: GitHub CLI (`gh`) authenticated, Python 3.9+, `uv` (for inline script deps).
 

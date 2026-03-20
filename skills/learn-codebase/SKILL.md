@@ -5,7 +5,7 @@ description: Discover project conventions and surface security concerns. Use whe
 
 # Learn Codebase Conventions
 
-Scan the current project for agent instruction files from various tools, summarize the conventions, and optionally register discovered skills in `.pi/settings.json`.
+Scan the current project for agent instruction files from various tools, summarize the conventions, and optionally register discovered skills in `.pi/settings.json`. Keep the guidance model-agnostic and local-first unless the project explicitly documents a hosted workflow.
 
 ## Step 1: Scan for Convention Files
 
@@ -25,7 +25,7 @@ done
 # Deeper convention files
 [ -f ".github/copilot-instructions.md" ] && echo "FOUND: .github/copilot-instructions.md"
 
-# Claude Code rules, skills, and commands
+# Assistant rules, skills, and commands
 [ -d ".claude/rules" ] && echo "FOUND: .claude/rules/"
 [ -d ".claude/skills" ] && echo "FOUND: .claude/skills/"
 [ -d ".claude/commands" ] && echo "FOUND: .claude/commands/"
@@ -43,7 +43,7 @@ For each discovered file, read its contents and extract key conventions:
 
 1. **Root instruction files** (`CLAUDE.md`, `AGENTS.md`, `.cursorrules`, etc.) — read fully, these are the primary project rules
 2. **Rule directories** (`.claude/rules/`, `.cursor/rules/`) — read each rule file
-3. **Commands** (`.claude/commands/`) — read each command file. These are reusable prompt workflows from Claude Code (e.g., PR creation, release scripts, review checklists). Summarize what each command does.
+3. **Commands** (`.claude/commands/` or similar command directories) — read each command file. These are reusable prompt workflows from the repo's configured assistant stack. Summarize what each command does without assuming Claude-specific execution.
 4. **Skills directories** (`.claude/skills/`, `.cursor/skills/`) — list available skills and read their descriptions
 5. **Settings files** (`.claude/settings.json`) — note permissions and configuration
 
@@ -77,7 +77,7 @@ Focus on actionable information. Skip boilerplate and obvious conventions.
 
 ## Step 3: Register External Skills
 
-If `.claude/skills/` or other skill directories exist, suggest registering them in `.pi/settings.json` so pi can use them too:
+If `.claude/skills/` or other skill directories exist, suggest registering them in `.pi/settings.json` so pi can use them too when that is actually useful:
 
 ```json
 {
@@ -85,7 +85,7 @@ If `.claude/skills/` or other skill directories exist, suggest registering them 
 }
 ```
 
-Ask the user if they want to create or update `.pi/settings.json` with the discovered skill paths. Only do this if skills were actually found.
+Ask the user if they want to create or update `.pi/settings.json` with the discovered skill paths. Prefer a local-first setup and avoid adding hosted-only dependencies unless the repo clearly needs them.
 
 ## Step 4: Note What to Remember
 

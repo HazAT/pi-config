@@ -6,7 +6,7 @@ license: From mitsuhiko/agent-stuff
 
 # GitHub Skill
 
-Use the `gh` CLI to interact with GitHub. Always specify `--repo owner/repo` when not in a git directory, or use URLs directly.
+Use the `gh` CLI to interact with GitHub. Always specify `--repo owner/repo` when not in a git directory, or use URLs directly. Stay local by default; only escalate to Codex when the value comes from stronger synthesis of CI/review context rather than from the GitHub data fetch itself.
 
 ## Pull Requests
 

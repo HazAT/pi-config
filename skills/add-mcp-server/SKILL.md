@@ -5,7 +5,7 @@ description: Add an MCP server to pi. Use when asked to "add mcp server", "confi
 
 # Add an MCP Server
 
-Add an MCP server configuration to `pi-mcp-adapter`. Determine scope and server type, write the config, and verify the connection.
+Add an MCP server configuration to `pi-mcp-adapter`. Determine scope and server type, write the config, and verify the connection. Keep this local unless the MCP server itself is a hosted dependency the project genuinely needs.
 
 ## Step 1: Determine Scope
 

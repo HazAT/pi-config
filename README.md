@@ -91,25 +91,71 @@ The repo is configured for a **local-first default** through LM Studio. Treat ho
 
 Use the default agent role first, then route with the same policy the `/answer` extractor now follows: **local model first, Codex only when explicitly allowed, otherwise stay on the current model**. That keeps routine work cheap without hiding the premium path when it is genuinely justified.
 
-### Spend Codex when…
+Use this when the task is routine, exploratory, or mostly mechanical.
+
+- **Hosted models:** none.
+- **Local agents:** every built-in agent stays on the repo default local provider/model.
+- **Recommended for:** scouting, ordinary planning, broad edits, cheap review passes, local repo analysis, and iterative experimentation.
+
+### Balanced mode — local first
+
+Use this when most work is still cheap locally, but selected implementation and review steps are worth spending Codex.
+
+- **Hosted models allowed:** `worker` and `reviewer`, but only on important tasks.
+- **Local agents:** `scout`, `planner`, `researcher`, `visual-tester`, and `autoresearch` remain local.
+- **Recommended for:** local scouting and planning, Codex for narrow/high-value implementation bursts, and Codex for final review when the change matters enough to justify it.
+
+### Premium mode — speed over quota
+
+Use this when turnaround time matters more than hosted-model budget.
+
+- **Hosted models allowed:** `planner`, `worker`, and `reviewer`; `researcher` can also use hosted web research or synthesis when local analysis is not enough.
+- **Local agents:** `scout`, `visual-tester`, and `autoresearch` still default local because their work is usually cheaper locally even in premium mode.
+- **Recommended for:** ambiguous design work, urgent implementation, and important final review loops where extra synthesis or speed is worth the spend.
+
+### Worth spending Codex when…
 
 - the task is narrow, high-value, and benefits from stronger implementation or review quality
-- you need a polished answer quickly and the speed matters more than the quota cost
+- you need a polished answer quickly and speed matters more than quota
 - the design problem is unusually complex, ambiguous, or full of tradeoffs
 - the final review is important enough that an extra pass could prevent an expensive mistake
 - external research or cross-source synthesis is required and the local/parallel tool path is not enough
 
 ### Stay local when…
 
-- you are still gathering context, scouting files, or doing ordinary planning
+- you are gathering context, scouting files, or doing ordinary planning
 - the work is broad, exploratory, or mostly mechanical editing
-- you want cheap intermediate checks before the final pass
+- you want cheap intermediate checks before a final pass
 - the answer already exists in the repo, local tools, or easily verifiable local state
 - hosted spend has not been explicitly justified by complexity, importance, or research needs
+
+### Skill routing
+
+The shipped skills follow the same rule:
+
+- **Keep** skills that are model-agnostic and useful locally.
+- **Convert** skills that benefit from lightweight routing guidance so they stay local by default and escalate to Codex only for clearly high-value work.
+- **Remove** or rewrite Claude-specific assumptions instead of leaving dead-brand instructions in place.
 
 ## Skills
 
 Loaded on-demand when the context matches.
+
+### Skill policy
+
+| Skill | Classification | Policy |
+|------|----------------|--------|
+| `add-mcp-server` | Keep | Local setup workflow; use hosted models only if the server being configured is itself a hosted dependency. |
+| `cmux` | Keep | Terminal orchestration is local-only. |
+| `commit` | Keep | Commit authoring stays local. |
+| `frontend-design` | Convert | Build locally first; spend Codex only when the UI work is high-value and needs faster synthesis. |
+| `github` | Keep | Use local CLI/API access first; escalate only when cross-check synthesis is the real value. |
+| `iterate-pr` | Convert | Keep the fix/verify loop local, escalate only for high-value implementation or review synthesis. |
+| `learn-codebase` | Convert | Stay model-agnostic, local-first, and summarize external convention files without assuming Claude-only flows. |
+| `presentation-creator` | Convert | Generate locally first; spend Codex only for urgent or unusually synthesis-heavy decks. |
+| `session-reader` | Keep | Session parsing is local inspection work. |
+| `skill-creator` | Convert | Author model-agnostic skills and mention hosted escalation only when it meaningfully improves the workflow. |
+| `code-simplifier` | Convert | Simplify locally first, escalate only for unusually tangled changes. |
 
 | Skill | When to Load |
 |-------|-------------|
@@ -130,7 +176,6 @@ Loaded on-demand when the context matches.
 | Extension | What it provides |
 |-----------|------------------|
 | **answer/** | `/answer` command + `Ctrl+.` — extracts questions into interactive Q&A UI |
-| **claude-tool/** | `claude` tool — invoke Claude Code for autonomous tasks |
 | **cmux/** | cmux integration — notifications, sidebar, workspace tools |
 | **cost/** | `/cost` command — API cost summary |
 | **execute-command/** | `execute_command` tool — lets the agent self-invoke slash commands |

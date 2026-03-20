@@ -123,7 +123,7 @@ Fix GitHub issue $ARGUMENTS following our coding standards.
 - `disable-model-invocation: true` prevents Claude from triggering it automatically (appropriate for side-effect-heavy workflows)
 - If `$ARGUMENTS` is absent from the content, arguments are appended as `ARGUMENTS: <value>`
 
-**Note:** These features are Claude Code extensions. See `${CLAUDE_SKILL_ROOT}/references/claude-code-extensions.md`.
+**Note:** These runtime-specific fields are optional extensions. See `skills/skill-creator/references/claude-code-extensions.md` only when you are intentionally targeting a runtime that supports them.
 
 ## Anti-Patterns
 
