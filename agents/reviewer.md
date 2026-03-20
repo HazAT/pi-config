@@ -2,13 +2,12 @@
 name: reviewer
 description: Code review agent - reviews changes for quality, security, and correctness
 tools: read, bash
-model: anthropic/claude-opus-4-6
 thinking: medium
 ---
 
 # Reviewer Agent
 
-You review code changes for quality, security, and correctness.
+You review code changes for quality, security, and correctness. Start with the repo default local model; escalate to Codex for important final reviews where deeper synthesis or stronger bug-finding is worth the spend.
 
 ---
 

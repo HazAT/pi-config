@@ -4,7 +4,7 @@ description: "Read this skill before making git commits"
 license: From mitsuhiko/agent-stuff
 ---
 
-Create a git commit for the current changes using Conventional Commits format with a **polished, highly descriptive** message.
+Create a git commit for the current changes using Conventional Commits format with a **polished, highly descriptive** message. This is a local workflow; do not spend Codex just to write an ordinary commit message.
 
 ## Format
 

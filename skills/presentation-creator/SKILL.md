@@ -5,7 +5,7 @@ description: Create data-driven presentation slides using React, Vite, and Recha
 
 # Sentry Presentation Builder
 
-Create interactive, data-driven presentation slides using React + Vite + Recharts, styled with the Sentry design system and built as a single distributable HTML file.
+Create interactive, data-driven presentation slides using React + Vite + Recharts, styled with the Sentry design system and built as a single distributable HTML file. Keep generation local by default; only spend Codex when the deck is urgent or the narrative synthesis is unusually high-value.
 
 ## Step 1: Gather Requirements
 
@@ -96,7 +96,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App />)
 
 ## Step 3: Build the Slide System
 
-Read `${CLAUDE_SKILL_ROOT}/references/design-system.md` for the complete Sentry color palette, typography, CSS variables, layout utilities, and animation system.
+Read `skills/presentation-creator/references/design-system.md` for the complete Sentry color palette, typography, CSS variables, layout utilities, and animation system.
 
 ### App.jsx Structure
 
@@ -160,7 +160,7 @@ function App() {
 
 If NO slides require charts, skip this step entirely — do not create `Charts.jsx` or import Recharts.
 
-When real data IS available, read `${CLAUDE_SKILL_ROOT}/references/chart-patterns.md` for Recharts component patterns including axis configuration, color constants, chart types, and data generation techniques.
+When real data IS available, read `skills/presentation-creator/references/chart-patterns.md` for Recharts component patterns including axis configuration, color constants, chart types, and data generation techniques.
 
 Put all chart components in `Charts.jsx`. Key patterns:
 
@@ -181,12 +181,12 @@ Apply the complete CSS from the design system reference. Key elements:
 - **Animations**: `fadeUp` keyframe with staggered delays
 - **Layout**: `.cols` flex rows, `.cards` grid, `.chart-wrap` containers
 - **Tags**: `.tag-purple`, `.tag-red`, `.tag-green`, `.tag-amber` for slide labels
-- **Logo**: Read the official SVG from `${CLAUDE_SKILL_ROOT}/references/sentry-logo.svg` (full wordmark) or `sentry-glyph.svg` (glyph only). Do NOT hardcode an approximation — always use the exact SVG paths from these files.
+- **Logo**: Read the official SVG from `skills/presentation-creator/references/sentry-logo.svg` (full wordmark) or `skills/presentation-creator/references/sentry-glyph.svg` (glyph only). Do NOT hardcode an approximation — always use the exact SVG paths from these files.
 
 ## Step 6: Common Slide Patterns
 
 ### Title Slide
-Logo (from `${CLAUDE_SKILL_ROOT}/references/sentry-logo.svg` or `sentry-glyph.svg`) + h1 + subtitle + author/date info.
+Logo (from `skills/presentation-creator/references/sentry-logo.svg` or `skills/presentation-creator/references/sentry-glyph.svg`) + h1 + subtitle + author/date info.
 
 ### Problem/Context Slide
 Tag + heading + 2-column card grid with icon headers.

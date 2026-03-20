@@ -4,19 +4,18 @@ description: Create new agent skills following the Agent Skills specification. U
 ---
 
 <!--
-Adapted from skill-creator implementations by Anthropic and OpenAI:
-https://github.com/anthropics/skills/tree/main/skills/skill-creator
+Adapted from upstream skill-creator workflows and rewritten for this repo's model-agnostic, local-first setup:
 https://github.com/openai/skills/tree/main/skills/.system/skill-creator
 
 References:
 - Agent Skills specification: https://agentskills.io/specification
-- Skill authoring best practices: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices
+- Skill authoring best practices: https://platform.openai.com/docs
 - Validation library: https://github.com/agentskills/agentskills/tree/main/skills-ref
 -->
 
 # Create a New Skill
 
-Guide the user through creating a new agent skill following the [Agent Skills specification](https://agentskills.io/specification). Follow each step in order.
+Guide the user through creating a new agent skill following the [Agent Skills specification](https://agentskills.io/specification). Follow each step in order. Default to model-agnostic, local-first skill design; mention hosted escalation only when it materially improves the workflow.
 
 ## Step 1: Understand the Skill
 
@@ -44,7 +43,7 @@ Gather requirements before writing anything.
 | **With scripts** | `SKILL.md` + `scripts/` | Workflow automation needing Python scripts |
 | **Full** | All of the above | Complex skills with automation and domain knowledge |
 
-Read `${CLAUDE_SKILL_ROOT}/references/design-principles.md` for guidance on keeping skills focused and concise.
+Read `skills/skill-creator/references/design-principles.md` for guidance on keeping skills focused and concise.
 
 ## Step 2: Plan the Skill
 
@@ -64,7 +63,7 @@ Example analysis:
 
 Before writing, study 1-2 existing skills that match the chosen tier. Look for skills in the target repository or plugin to understand local conventions.
 
-Read `${CLAUDE_SKILL_ROOT}/references/skill-patterns.md` for concrete examples of each tier.
+Read `skills/skill-creator/references/skill-patterns.md` for concrete examples of each tier.
 
 Also read `CLAUDE.md` (or `AGENTS.md`) at the repository root for repo-specific conventions that the skill should follow.
 
@@ -93,7 +92,7 @@ description: <what it does>. Use when <trigger phrases>. <key capabilities>.
 - `metadata` — arbitrary key-value mapping for additional metadata
 - `compatibility` — environment requirements (max 500 chars); most skills don't need this
 
-For Claude Code-specific fields (`argument-hint`, `disable-model-invocation`, `context`, etc.), read `${CLAUDE_SKILL_ROOT}/references/claude-code-extensions.md`.
+If the target runtime supports extra frontmatter fields, document only the ones that are genuinely useful in that runtime. Do not add Claude-branded metadata unless the destination explicitly requires it.
 
 ### Description Guidelines
 
@@ -132,8 +131,8 @@ Write the body in **imperative voice** — these are instructions, not documenta
 5. End with validation criteria or exit conditions
 
 For workflow and output patterns, read:
-- `${CLAUDE_SKILL_ROOT}/references/workflow-patterns.md` — sequential workflows, feedback loops, plan-validate-execute
-- `${CLAUDE_SKILL_ROOT}/references/output-patterns.md` — template, examples, and structured data patterns
+- `skills/skill-creator/references/workflow-patterns.md` — sequential workflows, feedback loops, plan-validate-execute
+- `skills/skill-creator/references/output-patterns.md` — template, examples, and structured data patterns
 
 **Size limits:**
 - Keep SKILL.md under **500 lines** (< 5000 tokens recommended)
@@ -185,7 +184,7 @@ Use for domain knowledge the agent loads conditionally.
 
 Reference from SKILL.md with:
 ```markdown
-Read `${CLAUDE_SKILL_ROOT}/references/topic-a.md` for details on [topic].
+Read `skills/<skill-name>/references/topic-a.md` for details on [topic].
 ```
 
 Guidelines:
@@ -207,7 +206,7 @@ Use for workflow automation that benefits from structured Python.
 ```
 
 **Script requirements:**
-- Always use `uv run` to execute: `uv run ${CLAUDE_SKILL_ROOT}/scripts/do_thing.py`
+- Always use `uv run` to execute: `uv run skills/<skill-name>/scripts/do_thing.py`
 - Add PEP 723 inline metadata for dependencies:
 
 ```python
@@ -235,7 +234,7 @@ Include a LICENSE file in the skill directory when vendoring content with specif
 Run the validation script to catch issues early:
 
 ```bash
-uv run ${CLAUDE_SKILL_ROOT}/scripts/quick_validate.py <path/to/skill-directory>
+uv run skills/skill-creator/scripts/quick_validate.py <path/to/skill-directory>
 ```
 
 The script checks frontmatter format, required fields, naming rules, and common mistakes. Fix any errors and re-run until validation passes.
@@ -251,7 +250,7 @@ Registration steps vary by repository. Check the repository's `CLAUDE.md` or `RE
 
 1. **Verify directory-name match** — confirm the directory name matches the `name` field in SKILL.md frontmatter exactly
 2. **Update documentation** — add the skill to any skills index or table in README.md
-3. **Update permissions** — if the repo has `.claude/settings.json`, add `Skill(<plugin>:<name>)` to the `permissions.allow` array
+3. **Update permissions/config** — if the repo has assistant-specific settings, register the skill using that runtime's documented mechanism without assuming a Claude-only format
 4. **Check CLAUDE.md** — read the repository's `CLAUDE.md` for any additional registration steps specific to that project
 
 ## Step 8: Verify
@@ -282,14 +281,14 @@ Run through this checklist before finishing:
 - [ ] Any repo-specific registration steps completed (check CLAUDE.md)
 
 ### Scripts (if applicable)
-- [ ] Uses `uv run ${CLAUDE_SKILL_ROOT}/scripts/...`
+- [ ] Uses `uv run skills/<skill-name>/scripts/...`
 - [ ] Has PEP 723 inline metadata
 - [ ] Outputs structured JSON
 - [ ] Handles errors explicitly
 - [ ] Documented in SKILL.md
 
 ### Validation
-- [ ] `uv run ${CLAUDE_SKILL_ROOT}/scripts/quick_validate.py` passes
+- [ ] `uv run skills/skill-creator/scripts/quick_validate.py` passes
 - [ ] Tested with a real usage scenario
 
 Report any issues found and fix them before completing.

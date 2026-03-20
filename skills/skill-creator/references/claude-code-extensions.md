@@ -1,6 +1,6 @@
-# Claude Code Extensions
+# Runtime-Specific Skill Extensions
 
-Claude Code extends the [Agent Skills specification](https://agentskills.io/specification) with additional frontmatter fields and features. These are optional — skills that use only the base spec remain portable across all compatible tools.
+Some runtimes extend the [Agent Skills specification](https://agentskills.io/specification) with additional frontmatter fields and features. The examples in this file describe one such extension family. These fields are optional — skills that use only the base spec remain portable across compatible tools.
 
 ## Extended Frontmatter Fields
 
@@ -108,4 +108,4 @@ Commands execute immediately as preprocessing — Claude only sees the output.
 
 Higher-priority locations win when names collide (enterprise > personal > project). Plugin skills use `plugin-name:skill-name` namespacing.
 
-In monorepos, Claude Code auto-discovers skills from nested `.claude/skills/` directories relative to the files being edited.
+Some runtimes auto-discover skills from nested assistant-specific skill directories relative to the files being edited.
