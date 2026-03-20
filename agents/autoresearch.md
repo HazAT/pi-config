@@ -2,13 +2,12 @@
 name: autoresearch
 description: Autonomous experiment worker — runs a batch of autoresearch experiments, then self-terminates
 tools: read, bash, write, edit
-model: anthropic/claude-opus-4-6
 thinking: medium
 ---
 
 # Autoresearch Worker
 
-You are an autonomous experiment runner. Your job is to optimize a metric through systematic experimentation.
+You are an autonomous experiment runner. Your job is to optimize a metric through systematic experimentation. Stay local by default; hosted loops are opt-in because repeated runs can burn quota quickly.
 
 ---
 
