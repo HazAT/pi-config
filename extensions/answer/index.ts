@@ -72,23 +72,41 @@ Example output:
   ]
 }`;
 
-const HAIKU_MODEL_ID = "claude-haiku-4-5";
+const LOCAL_PROVIDERS = new Set(["lmstudio", "ollama"]);
+const OPENAI_PROVIDER = "openai";
+
+function getProviderId(model: Model<Api>): string | undefined {
+	return (model as Model<Api> & { provider?: string }).provider;
+}
+
+function isLocalModel(model: Model<Api>): boolean {
+	const provider = getProviderId(model);
+	return provider ? LOCAL_PROVIDERS.has(provider) : false;
+}
+
+function isCodexModel(model: Model<Api>): boolean {
+	const provider = getProviderId(model);
+	return provider === OPENAI_PROVIDER && model.id.toLowerCase().includes("codex");
+}
 
 /**
- * Prefer Haiku for extraction (fast, cheap), otherwise fallback to the current model.
+ * Prefer a currently selected local model for cheap extraction work, then Codex when
+ * the caller already opted into it, and otherwise stay on the current model.
  */
 async function selectExtractionModel(
 	currentModel: Model<Api>,
 	modelRegistry: {
-		find: (provider: string, modelId: string) => Model<Api> | undefined;
 		getApiKey: (model: Model<Api>) => Promise<string | undefined>;
 	},
 ): Promise<Model<Api>> {
-	const haikuModel = modelRegistry.find("anthropic", HAIKU_MODEL_ID);
-	if (haikuModel) {
-		const apiKey = await modelRegistry.getApiKey(haikuModel);
+	if (isLocalModel(currentModel)) {
+		return currentModel;
+	}
+
+	if (isCodexModel(currentModel)) {
+		const apiKey = await modelRegistry.getApiKey(currentModel);
 		if (apiKey) {
-			return haikuModel;
+			return currentModel;
 		}
 	}
 
@@ -519,7 +537,7 @@ export default function (pi: ExtensionAPI) {
 				return;
 			}
 
-			// Select the best model for extraction (prefer Codex mini, then haiku)
+			// Select the extraction model using the local -> Codex -> current fallback policy
 			const extractionModel = await selectExtractionModel(ctx.model, ctx.modelRegistry);
 
 			// Run extraction with loader UI

@@ -48,28 +48,48 @@ This config uses **subagents** — visible pi sessions spawned in cmux terminals
 
 Specialized roles with baked-in identity, workflow, and review rubrics.
 
-| Agent | Model | Purpose |
-|-------|-------|---------|
-| **planner** | Opus 4.6 | Interactive brainstorming — clarify, explore, validate design, write plan, create todos |
-| **scout** | Haiku 4.5 | Fast codebase reconnaissance — gathers context without making changes |
-| **worker** | Sonnet 4.6 | Implements tasks from todos, commits with polished messages |
-| **reviewer** | Opus 4.6 | Reviews code for quality, security, correctness (review rubric baked in) |
-| **researcher** | Sonnet 4.6 | Deep research using parallel.ai tools + Claude Code for code analysis |
-| **visual-tester** | Sonnet 4.6 | Visual QA — navigates web UIs via Chrome CDP, spots issues, produces reports |
-| **autoresearch** | Opus 4.6 | Autonomous experiment loop — runs, measures, and optimizes iteratively |
+| Agent | Default execution | Codex escalation | Purpose |
+|-------|-------------------|------------------|---------|
+| **planner** | Local default model | Premium mode only, or Balanced when the design is unusually ambiguous/high-stakes | Interactive brainstorming — clarify, explore, validate design, write plan, create todos |
+| **scout** | Local default model | Only for unusually messy/high-value synthesis work | Fast codebase reconnaissance — gathers context without making changes |
+| **worker** | Local default model | Balanced/Premium for important implementation bursts where speed matters | Implements tasks from todos, commits with polished messages |
+| **reviewer** | Local default model | Balanced/Premium for important final review passes | Reviews code for quality, security, correctness (review rubric baked in) |
+| **researcher** | Local default model plus parallel web tools | Premium only when hosted synthesis is explicitly justified | Deep research using parallel.ai tools first, with local repo analysis by default |
+| **visual-tester** | Local default model | Rarely needed; keep local unless a hosted run is explicitly worth it | Visual QA — navigates web UIs via Chrome CDP, spots issues, produces reports |
+| **autoresearch** | Local default model | Never by default; hosted loops are an explicit opt-in | Autonomous experiment loop — runs, measures, and optimizes iteratively |
+
+## Operating Modes
+
+The repo is configured for a **local-first default** through LM Studio. Treat hosted Codex usage as an explicit routing decision, not the baseline.
+
+### Cheap mode
+
+**Local only.** Every agent stays on the repo default local model.
+
+- Hosted models allowed: none
+- Keep `scout`, `planner`, `worker`, `reviewer`, `researcher`, `visual-tester`, and `autoresearch` local
+- Best for reconnaissance, broad edits, iterative debugging, and routine planning
+
+### Balanced mode
+
+**Local first.** Only spend Codex on important implementation and review work.
+
+- Hosted models allowed: `worker`, `reviewer`
+- Keep `scout`, `planner`, `researcher`, `visual-tester`, and `autoresearch` local unless the user explicitly overrides that choice
+- Best for normal day-to-day work where quota matters but a strong implementation/review pass is sometimes worth it
+
+### Premium mode
+
+**Use Codex where speed is worth the spend.**
+
+- Hosted models allowed: `planner`, `worker`, `reviewer`
+- Keep `scout`, `visual-tester`, and `autoresearch` local by default because their work is usually cheaper locally
+- Let `researcher` use hosted synthesis only when the task genuinely needs external research plus stronger cross-source synthesis
+- Best for high-priority work where faster planning, implementation, and final review are worth the quota
 
 ## Decision Guide: Local vs Codex Spend
 
-Use the default agent role first, then decide whether the job is cheap enough to keep local or important enough to spend Codex usage. The goal is simple: keep routine exploration and low-risk iteration local, and spend Codex when the extra speed, synthesis, or review quality is worth the quota.
-
-### Agent-by-agent guidance
-
-- **`scout`** — run **locally by default**. It is mostly reconnaissance, codebase scanning, and context gathering, so the work is usually cheap and parallel-friendly without spending Codex usage. Spend Codex only if you specifically need higher-quality synthesis from a large, messy codebase.
-- **`planner`** — run **locally for ordinary planning**. Use Codex only when the design is unusually complex, the requirements are genuinely ambiguous, or the planning step needs stronger structured reasoning than your normal local flow.
-- **`worker`** — use **Codex for focused implementation bursts** where speed and code quality justify the quota cost. Keep it **local for broad exploratory work, large low-risk edits, or tasks where the main cost is mechanical churn rather than hard implementation judgment**.
-- **`reviewer`** — use **Codex for final review on important changes** where catching subtle correctness, quality, or security issues matters. Keep it **local for cheap intermediate checks** while work is still moving quickly.
-- **`researcher`** — use it in **hosted mode only when external web research or synthesis is actually needed**. If the answer is already in the repo or can be verified locally, do not spend for hosted research.
-- **`autoresearch`** — keep it **local only** unless you are explicitly choosing to spend on hosted experimentation. Its loop can consume a lot of usage over time, so hosted runs should be an intentional opt-in rather than the default.
+Use the default agent role first, then route with the same policy the `/answer` extractor now follows: **local model first, Codex only when explicitly allowed, otherwise stay on the current model**. That keeps routine work cheap without hiding the premium path when it is genuinely justified.
 
 ### Spend Codex when…
 
@@ -77,7 +97,7 @@ Use the default agent role first, then decide whether the job is cheap enough to
 - you need a polished answer quickly and the speed matters more than the quota cost
 - the design problem is unusually complex, ambiguous, or full of tradeoffs
 - the final review is important enough that an extra pass could prevent an expensive mistake
-- external research or cross-source synthesis is required and local context is not enough
+- external research or cross-source synthesis is required and the local/parallel tool path is not enough
 
 ### Stay local when…
 
