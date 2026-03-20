@@ -18,7 +18,7 @@ Scripts are in the `scripts/` directory relative to this skill file. Resolve pat
 
 Fetches CI check status and extracts failure snippets from logs.
 
-```bash
+```powershell
 uv run scripts/fetch_pr_checks.py [--pr NUMBER]
 ```
 
@@ -38,7 +38,7 @@ Returns JSON:
 
 Fetches and categorizes PR review feedback by priority.
 
-```bash
+```powershell
 uv run scripts/fetch_pr_feedback.py [--pr NUMBER]
 ```
 
@@ -58,7 +58,7 @@ Each feedback item may include:
 
 ### 1. Identify PR
 
-```bash
+```powershell
 gh pr view --json number,url,headRefName
 ```
 
@@ -143,7 +143,7 @@ If local verification fails, fix before proceeding — do not push known-broken 
 **Use the `commit` skill** to create polished commits — do not `git commit -m "fix stuff"`.
 
 Then push:
-```bash
+```powershell
 git push
 ```
 

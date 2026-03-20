@@ -1,6 +1,6 @@
 ---
 name: learn-codebase
-description: Discover project conventions and surface security concerns. Use when starting work in a new or unfamiliar project, when asked to "learn the codebase", "check project rules", "what are the conventions", "onboard to this project", or "anything shady in this codebase". Scans agent config files (.claude/, .cursor/, CLAUDE.md, etc.) and runs a security/smell sweep for hardcoded secrets, insecure patterns, suspicious dependencies, and dangerous configurations.
+description: Discover project conventions and surface security concerns. Use when starting work in a new or unfamiliar project, when asked to "learn the codebase", "check project rules", "what are the conventions", "onboard to this project", or "anything shady in this codebase". Scans agent config files from common toolchains (.claude/, .cursor/, AGENTS.md, etc.) and runs a security/smell sweep for hardcoded secrets, insecure patterns, suspicious dependencies, and dangerous configurations.
 ---
 
 # Learn Codebase Conventions
@@ -11,7 +11,7 @@ Scan the current project for agent instruction files from various tools, summari
 
 Search the project root for these files and directories:
 
-```bash
+```powershell
 # Agent instruction files (root-level)
 for f in CLAUDE.md AGENTS.md COPILOT.md .cursorrules .clinerules; do
   [ -f "$f" ] && echo "FOUND: $f"
@@ -25,7 +25,7 @@ done
 # Deeper convention files
 [ -f ".github/copilot-instructions.md" ] && echo "FOUND: .github/copilot-instructions.md"
 
-# Claude Code rules, skills, and commands
+# Other tool-specific rules, skills, and commands
 [ -d ".claude/rules" ] && echo "FOUND: .claude/rules/"
 [ -d ".claude/skills" ] && echo "FOUND: .claude/skills/"
 [ -d ".claude/commands" ] && echo "FOUND: .claude/commands/"
@@ -43,7 +43,7 @@ For each discovered file, read its contents and extract key conventions:
 
 1. **Root instruction files** (`CLAUDE.md`, `AGENTS.md`, `.cursorrules`, etc.) — read fully, these are the primary project rules
 2. **Rule directories** (`.claude/rules/`, `.cursor/rules/`) — read each rule file
-3. **Commands** (`.claude/commands/`) — read each command file. These are reusable prompt workflows from Claude Code (e.g., PR creation, release scripts, review checklists). Summarize what each command does.
+3. **Commands** (`.claude/commands/`) — read each command file. These are reusable prompt workflows from another toolchain (e.g., PR creation, release scripts, review checklists). Summarize what each command does.
 4. **Skills directories** (`.claude/skills/`, `.cursor/skills/`) — list available skills and read their descriptions
 5. **Settings files** (`.claude/settings.json`) — note permissions and configuration
 
@@ -77,11 +77,11 @@ Focus on actionable information. Skip boilerplate and obvious conventions.
 
 ## Step 3: Register External Skills
 
-If `.claude/skills/` or other skill directories exist, suggest registering them in `.pi/settings.json` so pi can use them too:
+If other tool-specific skill directories exist, suggest registering them in `.pi/settings.json` so pi can use them too:
 
 ```json
 {
-  "skills": ["../.claude/skills"]
+  "skills": ["../.cursor/skills"]
 }
 ```
 
@@ -105,7 +105,7 @@ Scan the codebase for things that look **shady, fishy, or dangerous**. This isn'
 Run these checks and report anything suspicious:
 
 **Hardcoded Secrets & Credentials**
-```bash
+```powershell
 # Look for hardcoded secrets, API keys, tokens, passwords
 rg -i --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}' \
   '(api[_-]?key|secret|token|password|credential|auth)\s*[:=]\s*["\x27][^"\x27]{8,}' \
@@ -116,7 +116,7 @@ git ls-files --cached | grep -iE '\.env($|\.)' 2>/dev/null
 ```
 
 **Insecure Code Patterns**
-```bash
+```powershell
 # eval(), exec(), dangerouslySetInnerHTML, innerHTML assignments, shell injection vectors
 rg --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}' \
   -e '\beval\s*\(' -e '\bexec\s*\(' -e 'dangerouslySetInnerHTML' \
@@ -130,7 +130,7 @@ rg --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}' \
 ```
 
 **Suspicious Dependencies**
-```bash
+```powershell
 # Check for install/postinstall scripts in dependencies (supply chain risk)
 [ -f package.json ] && cat package.json | grep -E '"(pre|post)install"' 2>/dev/null
 
@@ -143,7 +143,7 @@ rg --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}' \
 ```
 
 **Overly Permissive Configurations**
-```bash
+```powershell
 # CORS wildcards, disabled security headers, permissive CSP
 rg --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}' \
   -e "origin:\s*['\"]?\*" -e 'Access-Control-Allow-Origin.*\*' \
@@ -158,7 +158,7 @@ rg --hidden -g '!{.git,node_modules,dist,build,.next,vendor,*.lock}' \
 ```
 
 **File Permissions & Sensitive Files**
-```bash
+```powershell
 # Private keys, certificates, or database files in repo
 git ls-files --cached 2>/dev/null | grep -iE '\.(pem|key|p12|pfx|jks|keystore|sqlite|db)$' | head -10
 

@@ -41,9 +41,9 @@ function formatCost(n: number): string {
 }
 
 function shortModel(id: string): string {
-  // Strip common prefixes: "claude-" etc., keep it readable
+  // Strip common provider-specific prefixes to keep the sidebar readable
   return id
-    .replace(/^claude-/, "")
+    .replace(/^(gpt|qwen|llama)-/, "")
     .replace(/-\d{8}$/, "");
 }
 

@@ -47,8 +47,8 @@ Structure skills so agents load only what they need, when they need it.
 
 | File Extension | Read This Reference |
 |---------------|-------------------|
-| `.py`         | `${CLAUDE_SKILL_ROOT}/references/python.md` |
-| `.js`, `.ts`  | `${CLAUDE_SKILL_ROOT}/references/javascript.md` |
+| `.py`         | `${PI_SKILL_ROOT}/references/python.md` |
+| `.js`, `.ts`  | `${PI_SKILL_ROOT}/references/javascript.md` |
 ```
 
 This keeps the base context small while making deep knowledge available when needed.
@@ -121,7 +121,7 @@ Pick one term for each concept and use it throughout the skill. Inconsistent ter
 
 Information should live in either SKILL.md or reference files, not both. Prefer reference files for detailed content and SKILL.md for the core procedural workflow.
 
-Similarly, don't repeat conventions already in `CLAUDE.md` or `AGENTS.md`. Reference them instead: "Follow the commit conventions in CLAUDE.md" rather than copying the entire format spec.
+Similarly, don't repeat conventions already in `AGENTS.md` or `AGENTS.md`. Reference them instead: "Follow the commit conventions in AGENTS.md" rather than copying the entire format spec.
 
 ## Avoid Time-Sensitive Information
 
@@ -160,6 +160,6 @@ For very large reference files (>10k words), include grep search patterns in SKI
 
 ```markdown
 Find specific metrics using grep:
-- Revenue data: `grep -i "revenue" ${CLAUDE_SKILL_ROOT}/references/finance.md`
-- Pipeline data: `grep -i "pipeline" ${CLAUDE_SKILL_ROOT}/references/sales.md`
+- Revenue data: `grep -i "revenue" ${PI_SKILL_ROOT}/references/finance.md`
+- Pipeline data: `grep -i "pipeline" ${PI_SKILL_ROOT}/references/sales.md`
 ```

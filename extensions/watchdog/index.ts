@@ -121,8 +121,6 @@ Respond ONLY with valid JSON, no other text, no markdown fences:
         "-p",
         "--no-session",
         "--no-tools",
-        "--model",
-        "anthropic/claude-haiku-3-5",
         judgePrompt,
       ],
       { timeout: 30000 }

@@ -63,7 +63,7 @@ def validate_skill(skill_path: Path) -> tuple[bool, list[str], list[str]]:
     allowed_fields = {
         "name", "description", "license", "compatibility",
         "metadata", "allowed-tools",
-        # Claude Code extensions
+        # runtime-specific extensions
         "argument-hint", "disable-model-invocation", "user-invocable",
         "model", "context", "agent", "hooks",
     }
@@ -154,11 +154,11 @@ def validate_skill(skill_path: Path) -> tuple[bool, list[str], list[str]]:
         if "scripts/" in content and not scripts_dir.exists():
             errors.append("SKILL.md references 'scripts/' but directory does not exist")
 
-    # Check for hardcoded paths (should use ${CLAUDE_SKILL_ROOT})
+    # Check for hardcoded paths (should use ${PI_SKILL_ROOT})
     if re.search(r"(?:plugins|skills)/[a-z-]+/(?:scripts|references|assets)/", content):
         warnings.append(
             "SKILL.md may contain hardcoded paths. "
-            "Use ${CLAUDE_SKILL_ROOT}/scripts/... instead."
+            "Use ${PI_SKILL_ROOT}/scripts/... instead."
         )
 
     return len(errors) == 0, errors, warnings

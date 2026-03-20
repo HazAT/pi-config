@@ -46,7 +46,7 @@ iterate-pr/
   # dependencies = ["requests"]
   # ///
   ```
-- Invoked with `uv run ${CLAUDE_SKILL_ROOT}/scripts/script_name.py`
+- Invoked with `uv run ${PI_SKILL_ROOT}/scripts/script_name.py`
 - Scripts run from the **repository root**, not the skill directory
 - Scripts output structured JSON for agent consumption
 - Scripts handle errors explicitly — don't punt to the agent
@@ -120,10 +120,10 @@ Fix GitHub issue $ARGUMENTS following our coding standards.
 - `$ARGUMENTS` is replaced with whatever follows `/fix-issue` (e.g., `/fix-issue 123`)
 - `$ARGUMENTS[N]` or `$N` accesses individual arguments by position
 - `argument-hint` provides autocomplete guidance
-- `disable-model-invocation: true` prevents Claude from triggering it automatically (appropriate for side-effect-heavy workflows)
+- `disable-model-invocation: true` prevents automatic model invocation (appropriate for side-effect-heavy workflows)
 - If `$ARGUMENTS` is absent from the content, arguments are appended as `ARGUMENTS: <value>`
 
-**Note:** These features are Claude Code extensions. See `${CLAUDE_SKILL_ROOT}/references/claude-code-extensions.md`.
+**Note:** These features are runtime-specific extensions. Document them only when the target runtime supports them.
 
 ## Anti-Patterns
 
@@ -145,11 +145,11 @@ Fix GitHub issue $ARGUMENTS following our coding standards.
 
 **Fix:** Move all "when to use" information into the `description` field. The body should contain *how* to execute, not *when* to activate.
 
-### Duplicating CLAUDE.md
+### Duplicating project convention files
 
-**Problem:** SKILL.md repeats repo conventions already in CLAUDE.md (commit format, PR process, etc.).
+**Problem:** SKILL.md repeats repo conventions already in AGENTS.md (commit format, PR process, etc.).
 
-**Fix:** Reference CLAUDE.md where needed. Skills should add domain knowledge, not repeat general conventions. Example: "Follow the commit conventions in CLAUDE.md" instead of copying the entire commit format spec.
+**Fix:** Reference AGENTS.md where needed. Skills should add domain knowledge, not repeat general conventions. Example: "Follow the commit conventions in AGENTS.md" instead of copying the entire commit format spec.
 
 ### Unconditional Reference Loading
 
@@ -177,14 +177,14 @@ Fix GitHub issue $ARGUMENTS following our coding standards.
 
 ### Scripts Without Documentation
 
-**Problem:** SKILL.md says `uv run ${CLAUDE_SKILL_ROOT}/scripts/tool.py` but doesn't document what arguments it takes or what it outputs.
+**Problem:** SKILL.md says `uv run ${PI_SKILL_ROOT}/scripts/tool.py` but doesn't document what arguments it takes or what it outputs.
 
 **Fix:** Document every script's interface in SKILL.md:
 ```markdown
 ### `scripts/tool.py`
 Fetches X and returns structured data.
-```bash
-uv run ${CLAUDE_SKILL_ROOT}/scripts/tool.py --flag VALUE
+```powershell
+uv run ${PI_SKILL_ROOT}/scripts/tool.py --flag VALUE
 ```
 Returns JSON:
 ```json
@@ -196,7 +196,7 @@ Returns JSON:
 
 **Problem:** SKILL.md references a hardcoded path like `plugins/my-plugin/skills/my-skill/scripts/tool.py`.
 
-**Fix:** Always use `${CLAUDE_SKILL_ROOT}/scripts/tool.py`. The variable resolves to the skill's directory regardless of where the agent runs from.
+**Fix:** Always use `${PI_SKILL_ROOT}/scripts/tool.py`. The variable resolves to the skill's directory regardless of where the agent runs from.
 
 ### First/Second Person Descriptions
 

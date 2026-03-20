@@ -72,10 +72,12 @@ Example output:
   ]
 }`;
 
-const HAIKU_MODEL_ID = "claude-haiku-4-5";
+const LOCAL_PROVIDERS = ["lmstudio", "ollama"] as const;
+const PREMIUM_PROVIDERS = ["openai"] as const;
+
 
 /**
- * Prefer Haiku for extraction (fast, cheap), otherwise fallback to the current model.
+ * Prefer a cheap local model for extraction, then an OpenAI/Codex-capable premium model when explicitly configured, otherwise fall back to the current model.
  */
 async function selectExtractionModel(
 	currentModel: Model<Api>,
@@ -84,11 +86,23 @@ async function selectExtractionModel(
 		getApiKey: (model: Model<Api>) => Promise<string | undefined>;
 	},
 ): Promise<Model<Api>> {
-	const haikuModel = modelRegistry.find("anthropic", HAIKU_MODEL_ID);
-	if (haikuModel) {
-		const apiKey = await modelRegistry.getApiKey(haikuModel);
-		if (apiKey) {
-			return haikuModel;
+	for (const provider of LOCAL_PROVIDERS) {
+		const preferredLocalModel = modelRegistry.find(provider, currentModel.id);
+		if (preferredLocalModel) {
+			const apiKey = await modelRegistry.getApiKey(preferredLocalModel);
+			if (apiKey) {
+				return preferredLocalModel;
+			}
+		}
+	}
+
+	for (const provider of PREMIUM_PROVIDERS) {
+		const premiumModel = modelRegistry.find(provider, currentModel.id);
+		if (premiumModel) {
+			const apiKey = await modelRegistry.getApiKey(premiumModel);
+			if (apiKey) {
+				return premiumModel;
+			}
 		}
 	}
 

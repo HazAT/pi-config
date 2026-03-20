@@ -1,10 +1,9 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/usr/bin/env sh
+set -eu
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 EXPECTED_DIR="$HOME/.pi/agent"
 
-# Verify we're in the right place
 if [ "$SCRIPT_DIR" != "$EXPECTED_DIR" ]; then
   echo "⚠️  This repo should be cloned to ~/.pi/agent/"
   echo "   Current location: $SCRIPT_DIR"
@@ -17,13 +16,11 @@ fi
 echo "Setting up pi-config at $EXPECTED_DIR"
 echo ""
 
-# Create settings.json if it doesn't exist
 if [ ! -f "$EXPECTED_DIR/settings.json" ]; then
-  echo "Creating settings.json..."
-  cat > "$EXPECTED_DIR/settings.json" << 'EOF'
+  echo "Creating local-first settings.json..."
+  cat > "$EXPECTED_DIR/settings.json" <<'EOF'
 {
-  "defaultProvider": "anthropic",
-  "defaultModel": "claude-opus-4-6",
+  "defaultProvider": "lmstudio",
   "defaultThinkingLevel": "medium",
   "packages": [
     "git:github.com/nicobailon/pi-mcp-adapter",
@@ -46,17 +43,15 @@ if [ ! -f "$EXPECTED_DIR/settings.json" ]; then
   ],
   "hideThinkingBlock": false,
   "extensions": [
-    "+extensions/cmux/index.ts",
-    "+extensions/claude-tool/index.ts"
+    "+extensions/cmux/index.ts"
   ]
 }
 EOF
 else
-  echo "settings.json already exists — skipping creation"
+  echo "settings.json already exists — leaving it unchanged"
   echo ""
 fi
 
-# Install packages
 echo "Installing packages..."
 pi install git:github.com/nicobailon/pi-mcp-adapter 2>/dev/null || echo "  pi-mcp-adapter already installed"
 pi install git:github.com/HazAT/pi-smart-sessions 2>/dev/null || echo "  pi-smart-sessions already installed"
@@ -67,14 +62,5 @@ pi install git:github.com/HazAT/pi-interactive-subagents 2>/dev/null || echo "  
 pi install git:github.com/HazAT/pi-autoresearch 2>/dev/null || echo "  pi-autoresearch already installed"
 echo ""
 
-# Install claude-tool extension dependencies
-if [ -f "$EXPECTED_DIR/extensions/claude-tool/package.json" ]; then
-  echo "Installing claude-tool dependencies..."
-  cd "$EXPECTED_DIR/extensions/claude-tool" && npm install --silent
-  cd "$EXPECTED_DIR"
-  echo ""
-fi
-
 echo "✅ Setup complete!"
-echo ""
 echo "Restart pi to pick up all changes."

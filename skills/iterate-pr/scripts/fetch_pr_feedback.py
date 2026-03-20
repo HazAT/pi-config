@@ -37,7 +37,6 @@ from typing import Any
 REVIEW_BOT_PATTERNS = [
     r"(?i)^copilot",
     r"(?i)^codex",
-    r"(?i)^claude",
     r"(?i)^codeql",
     r"(?i)^sonarcloud",
     r"(?i)^deepsource",

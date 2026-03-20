@@ -30,7 +30,7 @@ cmux auto-sets these in every shell it spawns:
 |----------|---------|
 | `CMUX_WORKSPACE_ID` | UUID of the current workspace |
 | `CMUX_SURFACE_ID` | UUID of the current surface/panel |
-| `CMUX_SOCKET_PATH` | Unix socket path (usually `/tmp/cmux.sock`) |
+| `CMUX_SOCKET_PATH` | cmux socket path (for example `$env:TEMP/cmux.sock` on Windows or `/tmp/cmux.sock` on Unix) |
 
 Commands run inside a cmux shell automatically target the right workspace
 without needing `--workspace`.
@@ -41,7 +41,7 @@ without needing `--workspace`.
 
 ### Create a new tab (surface) in the current workspace
 
-```bash
+```powershell
 cmux new-surface --type terminal
 # Returns: OK surface:<n> pane:<n> workspace:<n>
 ```
@@ -51,21 +51,21 @@ the current terminal in the same workspace.
 
 ### Create a new split pane
 
-```bash
+```powershell
 cmux new-split <left|right|up|down>
 cmux new-pane --direction <left|right|up|down> [--type terminal]
 ```
 
 ### Spawn a new workspace (for full isolation)
 
-```bash
+```powershell
 cmux new-workspace [--cwd <path>] [--command "<text>"]
 # Returns: OK workspace:<n>
 ```
 
 ### Send commands
 
-```bash
+```powershell
 cmux send --surface <ref> '<command>\n'
 ```
 
@@ -73,7 +73,7 @@ The `\n` sends Enter. Without it, text is typed but not executed.
 
 ### Read terminal output
 
-```bash
+```powershell
 cmux read-screen --surface <ref> [--lines <n>] [--scrollback]
 ```
 
@@ -83,14 +83,14 @@ cmux read-screen --surface <ref> [--lines <n>] [--scrollback]
 
 ### Close a surface / workspace
 
-```bash
+```powershell
 cmux close-surface --surface <ref>
 cmux close-workspace --workspace <ref>
 ```
 
 ### List workspaces and surfaces
 
-```bash
+```powershell
 cmux list-workspaces --json
 cmux list-panels                   # List surfaces in current workspace
 cmux tree --json                   # Full layout with all details
@@ -98,13 +98,13 @@ cmux tree --json                   # Full layout with all details
 
 ### Notifications
 
-```bash
+```powershell
 cmux notify --title "<text>" --body "<text>"
 ```
 
 ### Send special keys
 
-```bash
+```powershell
 cmux send-key --surface <ref> ctrl+c    # Interrupt
 cmux send-key --surface <ref> ctrl+d    # EOF
 cmux send-key --surface <ref> escape    # Escape
@@ -116,7 +116,7 @@ cmux send-key --surface <ref> escape    # Escape
 
 ### Pattern 1: Start a dev server in a new tab
 
-```bash
+```powershell
 # Create a tab and capture its surface ref
 SURFACE=$(cmux new-surface --type terminal | awk '{print $2}')
 sleep 0.5
@@ -142,7 +142,7 @@ cmux close-surface --surface $SURFACE
 
 ### Pattern 2: Run tests in a tab and read results
 
-```bash
+```powershell
 SURFACE=$(cmux new-surface --type terminal | awk '{print $2}')
 sleep 0.5
 cmux send --surface $SURFACE 'cd /path/to/project && npm test\n'
@@ -153,7 +153,7 @@ cmux close-surface --surface $SURFACE
 
 ### Pattern 3: Interactive session — send multiple commands
 
-```bash
+```powershell
 SURFACE=$(cmux new-surface --type terminal | awk '{print $2}')
 sleep 0.5
 
@@ -170,7 +170,7 @@ cmux close-surface --surface $SURFACE
 
 ### Pattern 4: Monitor multiple processes
 
-```bash
+```powershell
 S_API=$(cmux new-surface --type terminal | awk '{print $2}')
 S_WEB=$(cmux new-surface --type terminal | awk '{print $2}')
 sleep 0.5
@@ -190,7 +190,7 @@ cmux close-surface --surface $S_WEB
 
 ### Pattern 5: Split pane for side-by-side view
 
-```bash
+```powershell
 cmux new-split right   # Terminal split to the right
 cmux new-split down    # Terminal split below
 ```
