@@ -22,8 +22,7 @@ if [ ! -f "$EXPECTED_DIR/settings.json" ]; then
   echo "Creating settings.json..."
   cat > "$EXPECTED_DIR/settings.json" << 'EOF'
 {
-  "defaultProvider": "anthropic",
-  "defaultModel": "claude-opus-4-6",
+  "defaultProvider": "lmstudio",
   "defaultThinkingLevel": "medium",
   "packages": [
     "git:github.com/nicobailon/pi-mcp-adapter",
@@ -46,8 +45,7 @@ if [ ! -f "$EXPECTED_DIR/settings.json" ]; then
   ],
   "hideThinkingBlock": false,
   "extensions": [
-    "+extensions/cmux/index.ts",
-    "+extensions/claude-tool/index.ts"
+    "+extensions/cmux/index.ts"
   ]
 }
 EOF
@@ -66,14 +64,6 @@ pi install git:github.com/HazAT/glimpse 2>/dev/null || echo "  glimpse already i
 pi install git:github.com/HazAT/pi-interactive-subagents 2>/dev/null || echo "  pi-interactive-subagents already installed"
 pi install git:github.com/HazAT/pi-autoresearch 2>/dev/null || echo "  pi-autoresearch already installed"
 echo ""
-
-# Install claude-tool extension dependencies
-if [ -f "$EXPECTED_DIR/extensions/claude-tool/package.json" ]; then
-  echo "Installing claude-tool dependencies..."
-  cd "$EXPECTED_DIR/extensions/claude-tool" && npm install --silent
-  cd "$EXPECTED_DIR"
-  echo ""
-fi
 
 echo "✅ Setup complete!"
 echo ""

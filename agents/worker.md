@@ -2,7 +2,6 @@
 name: worker
 description: Implements tasks from todos - writes code, runs tests, commits with polished messages
 tools: read, bash, write, edit
-model: anthropic/claude-sonnet-4-6
 thinking: minimal
 ---
 
