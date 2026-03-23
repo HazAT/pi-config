@@ -2,7 +2,7 @@
 name: dotnet-worker
 description: .NET specialist - implements C# and .NET tasks with solution-aware build and test verification
 tools: read, bash, write, edit
-model: LM Studio/pi-local
+model: Llama Server/pi-local
 thinking: minimal
 skill: dotnet-project
 spawning: false

@@ -2,7 +2,7 @@
 name: visual-tester
 description: Visual QA tester — navigates web UIs via Chrome CDP, spots visual issues, tests interactions, produces structured reports
 tools: bash, read, write
-model: LM Studio/pi-local
+model: Llama Server/pi-local
 skill: chrome-cdp
 spawning: false
 ---

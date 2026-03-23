@@ -1,6 +1,6 @@
 {
   "lastChangelogVersion": "0.60.0",
-  "defaultProvider": "LM Studio",
+  "defaultProvider": "Llama Server",
   "defaultModel": "pi-local",
   "defaultThinkingLevel": "medium",
   "packages": [

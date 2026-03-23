@@ -72,12 +72,13 @@ Example output:
   ]
 }`;
 
-const LOCAL_PROVIDER = "LM Studio";
 const LOCAL_MODEL_ID = "pi-local";
+const PREFERRED_LOCAL_PROVIDERS = ["Llama Server", "LM Studio"] as const;
 
 /**
- * Prefer the current local LM Studio model when one is already active. Otherwise
- * prefer the shared pi-local alias before falling back to the current model.
+ * Prefer the current local model when one of the supported local providers is
+ * already active. Otherwise prefer the shared pi-local alias before falling
+ * back to the current model.
  */
 async function selectExtractionModel(
 	currentModel: Model<Api>,
@@ -87,25 +88,29 @@ async function selectExtractionModel(
 		getAvailable?: () => Promise<Model<Api>[]> | Model<Api>[];
 	},
 ): Promise<Model<Api>> {
-	if (currentModel.provider === LOCAL_PROVIDER) {
+	if (PREFERRED_LOCAL_PROVIDERS.includes(currentModel.provider as (typeof PREFERRED_LOCAL_PROVIDERS)[number])) {
 		return currentModel;
 	}
 
 	if (typeof modelRegistry.getAvailable === "function") {
 		const availableModels = await modelRegistry.getAvailable();
-		const localModel = availableModels.find(
-			(model) => model.provider === LOCAL_PROVIDER && model.id === LOCAL_MODEL_ID,
-		);
-		if (localModel) {
-			return localModel;
+		for (const provider of PREFERRED_LOCAL_PROVIDERS) {
+			const localModel = availableModels.find(
+				(model) => model.provider === provider && model.id === LOCAL_MODEL_ID,
+			);
+			if (localModel) {
+				return localModel;
+			}
 		}
 	}
 
-	const localModel = modelRegistry.find(LOCAL_PROVIDER, LOCAL_MODEL_ID);
-	if (localModel) {
-		const apiKey = await modelRegistry.getApiKey(localModel);
-		if (apiKey !== undefined) {
-			return localModel;
+	for (const provider of PREFERRED_LOCAL_PROVIDERS) {
+		const localModel = modelRegistry.find(provider, LOCAL_MODEL_ID);
+		if (localModel) {
+			const apiKey = await modelRegistry.getApiKey(localModel);
+			if (apiKey !== undefined) {
+				return localModel;
+			}
 		}
 	}
 
@@ -536,7 +541,7 @@ export default function (pi: ExtensionAPI) {
 				return;
 			}
 
-			// Select the best model for extraction (prefer local LM Studio, then fallback)
+			// Select the best local model for extraction, then fall back.
 			const extractionModel = await selectExtractionModel(ctx.model, ctx.modelRegistry);
 
 			// Run extraction with loader UI

@@ -2,7 +2,7 @@
 name: python-worker
 description: Python specialist - implements Python scripts, packages, APIs, automation, and tests with targeted verification
 tools: read, bash, write, edit
-model: LM Studio/pi-local
+model: Llama Server/pi-local
 thinking: minimal
 skill: python-project
 spawning: false

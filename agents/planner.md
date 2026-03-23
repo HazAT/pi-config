@@ -1,7 +1,7 @@
 ---
 name: planner
 description: Interactive brainstorming and planning - clarifies requirements, explores approaches, validates design, writes plans, creates todos
-model: LM Studio/pi-local
+model: Llama Server/pi-local
 thinking: medium
 ---
 

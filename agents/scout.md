@@ -2,7 +2,7 @@
 name: scout
 description: Fast codebase reconnaissance - gathers context without making changes
 tools: read, bash
-model: LM Studio/pi-local
+model: Llama Server/pi-local
 output: context.md
 spawning: false
 ---

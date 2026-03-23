@@ -2,7 +2,7 @@
 name: autoresearch
 description: Autonomous experiment worker — runs a batch of autoresearch experiments, then self-terminates
 tools: read, bash, write, edit
-model: LM Studio/pi-local
+model: Llama Server/pi-local
 thinking: medium
 spawning: false
 ---

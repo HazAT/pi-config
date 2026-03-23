@@ -2,7 +2,7 @@
 name: docker-worker
 description: Docker specialist - implements Dockerfiles, Compose stacks, and local containerized dev-environment changes
 tools: read, bash, write, edit
-model: LM Studio/pi-local
+model: Llama Server/pi-local
 thinking: minimal
 skill: dev-environment
 spawning: false

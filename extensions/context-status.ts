@@ -57,6 +57,7 @@ export function formatCost(n: number): string {
 
 export function shortProvider(provider?: string): string {
   if (!provider) return "model";
+  if (provider === "Llama Server") return "Llama";
   if (provider === "LM Studio") return "LM";
   if (provider === "openai-codex") return "Codex";
   if (provider === "openai") return "OpenAI";

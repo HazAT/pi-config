@@ -66,8 +66,8 @@ interface PaletteState {
 }
 
 const SUMMARY_DIR = "session-summaries";
-const LOCAL_PROVIDER = "LM Studio";
 const LOCAL_MODEL_ID = "pi-local";
+const PREFERRED_LOCAL_PROVIDERS = ["Llama Server", "LM Studio"] as const;
 const SUMMARY_TIMEOUT_MS = 30_000;
 
 function sanitizeFilePart(value: string): string {
@@ -223,8 +223,9 @@ function readGitState(cwd: string): { gitBranch?: string; changedFiles: string[]
 }
 
 async function selectSummaryModel(ctx: ExtensionContext): Promise<Model<any> | undefined> {
-  const local = ctx.modelRegistry.find(LOCAL_PROVIDER, LOCAL_MODEL_ID);
-  if (local) {
+  for (const provider of PREFERRED_LOCAL_PROVIDERS) {
+    const local = ctx.modelRegistry.find(provider, LOCAL_MODEL_ID);
+    if (!local) continue;
     const localKey = await ctx.modelRegistry.getApiKey(local);
     if (localKey !== undefined) return local;
   }

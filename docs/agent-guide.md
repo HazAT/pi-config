@@ -43,7 +43,7 @@ Use `env-doctor` when:
 - Docker or another local dependency is failing before code even runs
 
 Example prompts:
-- `Diagnose why pi-local is not available even though LM Studio is running.`
+- `Diagnose why pi-local is not available even though my llama server is running.`
 - `Figure out why Docker compose fails on startup on this machine.`
 
 ## Supporting Agents
@@ -100,7 +100,7 @@ Do not use `env-doctor` for normal feature implementation.
 1. Use `docker-worker`.
 2. If the machine or Docker install itself looks broken, switch to `env-doctor`.
 
-### LM Studio Not Responding
+### Local Backend Not Responding
 
 1. Use `env-doctor`.
 2. If the environment recovers and code changes are still needed, hand off to the right worker.

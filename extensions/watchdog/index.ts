@@ -124,9 +124,14 @@ There have been ${consecutiveInterventions} prior watchdog interventions.
 Recent activity:
 ${summary}`;
 
-  const candidates = [{ provider: "LM Studio", model: "pi-local" }];
+  const candidates = [
+    { provider: "Llama Server", model: "pi-local" },
+    { provider: "LM Studio", model: "pi-local" },
+  ];
   if (ctx?.model?.provider && ctx?.model?.id) {
-    candidates.push({ provider: ctx.model.provider, model: ctx.model.id });
+    if (!candidates.some((candidate) => candidate.provider === ctx.model.provider && candidate.model === ctx.model.id)) {
+      candidates.push({ provider: ctx.model.provider, model: ctx.model.id });
+    }
   }
 
   for (const candidate of candidates) {

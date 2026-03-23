@@ -2,7 +2,7 @@
 name: worker
 description: Implements tasks from todos - writes code, runs tests, commits with polished messages
 tools: read, bash, write, edit
-model: LM Studio/pi-local
+model: Llama Server/pi-local
 thinking: minimal
 spawning: false
 ---
