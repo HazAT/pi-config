@@ -15,6 +15,22 @@
           "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 }
         }
       ]
+    },
+    "openrouter": {
+      "baseUrl": "https://openrouter.ai/api",
+      "api": "openai-chat",
+      "apiKeyEnv": "OPENROUTER_API_KEY",
+      "models": [
+        {
+          "id": "poolside/laguna-m.1:free",
+          "name": "Poolside Laguna M.1 (free)",
+          "reasoning": true,
+          "input": ["text"],
+          "contextWindow": 131072,
+          "maxTokens": 8192,
+          "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 }
+        }
+      ]
     }
   }
 }

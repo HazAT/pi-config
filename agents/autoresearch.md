@@ -61,6 +61,6 @@ When `log_experiment` tells you the batch is complete:
 
 1. Update `autoresearch.md` — especially the "What's Been Tried" section with key findings.
 2. Write promising untried ideas to `autoresearch.ideas.md`.
-3. Call `subagent_done` with a brief summary: what you tried, what worked, current best metric.
+3. Save or report a brief summary: what you tried, what worked, current best metric.
 
 Do NOT continue experimenting after the batch limit — wrap up cleanly.

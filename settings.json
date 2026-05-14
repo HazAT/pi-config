@@ -1,19 +1,12 @@
 {
-  "lastChangelogVersion": "0.67.6",
-  "defaultProvider": "anthropic",
-  "defaultModel": "claude-opus-4-7",
-  "defaultThinkingLevel": "medium",
+  "lastChangelogVersion": "0.74.0",
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.5",
+  "defaultThinkingLevel": "xhigh",
   "packages": [
-    "git:github.com/HazAT/pi-smart-sessions",
     "git:github.com/pasky/chrome-cdp-skill",
-    "-git:github.com/HazAT/glimpse",
-    "git:github.com/HazAT/pi-interactive-subagents",
-    "-git:github.com/HazAT/pi-autoresearch",
-    "git:github.com/HazAT/pi-parallel",
-    "git:github.com/badlogic/pi-diff-review"
+    "git:github.com/HazAT/pi-parallel"
   ],
   "hideThinkingBlock": false,
-  "extensions": [
-    "+extensions/cmux/index.ts"
-  ]
+  "enabledModels": ["anthropic/claude-opus-4-7", "openai-codex/gpt-5.5"]
 }

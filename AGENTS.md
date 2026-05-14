@@ -57,7 +57,7 @@ The best solutions feel almost obvious in hindsight — so logically simple and 
 - No fallback code "just in case" — if it's not needed now, don't write it
 - No backwards-compat shims in product code (libraries/SDKs are the exception)
 - No defensive handling of deprecated or removed paths
-- If the old way was wrong, delete it — don't preserve it behind a flag
+- If a path is wrong, delete it — don't preserve it behind a flag
 
 **If it doesn't feel clean and inevitable, the design isn't done yet.**
 
@@ -152,102 +152,69 @@ When something breaks, don't guess — investigate first.
 
 Avoid shotgun debugging ("let me try this... nope, what about this..."). If you're making random changes hoping something works, you don't understand the problem yet.
 
-### Delegate to Subagents
+### Delegate to Solo Subagents
 
-**Prefer subagent delegation** for any task that involves multiple steps or could benefit from specialized focus.
+**Prefer Solo subagent delegation** for any task that involves multiple steps or benefits from a focused specialist.
 
 #### Available Agents
 
 | Agent | Purpose | Model |
 |-------|---------|-------|
-| `spec` | Interactive spec agent — clarifies WHAT to build (intent, requirements, effort level, ISC). Produces a spec artifact. | Opus 4.6 (medium thinking) |
-| `planner` | Interactive planning agent — takes a spec and figures out HOW to build it. Explores approaches, validates design, writes plans, creates todos. | Opus 4.6 (medium thinking) |
+| `planner` | Interactive planning — clarifies WHAT to build, designs HOW, writes a plan scratchpad, and creates Solo todos | Opus 4.6 (medium thinking) |
 | `scout` | Fast codebase reconnaissance | Haiku (fast, cheap) |
-| `worker` | Implements tasks from todos, makes polished commits (always using the `commit` skill), and closes the todo. Reports back if a todo is missing examples/references. | Sonnet 4.6 |
-| `reviewer` | Reviews code for quality/security | Codex 5.3 |
-| `researcher` | Deep research using parallel tools (web search, URL extraction, synthesis) and Claude Code for hands-on code investigation | Sonnet 4.6 |
+| `worker` | Implements one Solo todo, verifies it, commits with the `commit` skill, saves a scratchpad result, and closes the todo | Sonnet 4.6 |
+| `reviewer` | Reviews code for quality/security/correctness and saves a scratchpad review | Codex |
+| `researcher` | Researches external facts using web tools and saves a scratchpad report | Sonnet 4.6 |
+| `visual-tester` | Visual QA via Chrome CDP and a scratchpad report | Sonnet 4.6 |
 
 #### Orchestration Mindset
 
-Subagents are **specialists in a system**. Each agent exists for a specific purpose — scouting, implementing, reviewing, researching, planning. When you spawn a subagent, it should:
+Solo subagents are specialists. Each agent focuses on its role, saves its artifact to a Solo scratchpad, and then stops. The parent session coordinates the workflow using Solo wake-ups, scratchpads, and todos.
 
-- **Focus on what's asked** — do the task, do it well, move on
-- **Not expand scope** — a spec agent doesn't plan architecture, a planner doesn't re-clarify requirements, a scout doesn't implement, a worker doesn't redesign, a reviewer doesn't rewrite
-- **Trust the system** — other agents handle what's outside your role
-- **Deliver and exit** — produce your artifact/commit/review, then terminate cleanly
+- **Scout** reads and reports context.
+- **Planner** works interactively with the user and creates Solo todos.
+- **Worker** executes one todo at a time.
+- **Reviewer** reviews changes and reports findings.
+- **Researcher** gathers external facts.
+- **Visual tester** checks UI behavior and presentation.
 
-This isn't a rigid hierarchy — it's a team of specialists. Each agent leans hard into its strengths and trusts that the orchestrator (the main session or the user) will route the right work to the right agent.
+#### Solo Subagents
 
-#### Subagents
-
-Subagents are **async** — the tool returns immediately and the agent can keep working. When a subagent finishes, its result is steered back to the main session as an interrupt. A live widget at the bottom of the screen shows all running subagents with elapsed time and progress.
-
-The `agent` parameter loads defaults from `~/.pi/agent/agents/<name>.md`. Model, tools, skills, thinking — all inherited. Explicit params override agent defaults.
+`subagent` returns after launching the child. When the child goes idle, Solo wakes the parent with the process id and scratchpad id. Read that scratchpad before deciding the next step.
 
 ```typescript
-// Use existing agent definitions — full transparency
-subagent({ name: "Scout", agent: "scout", task: "Analyze the codebase..." })
-subagent({ name: "Worker", agent: "worker", task: "Implement TODO-xxxx..." })
-subagent({ name: "Reviewer", agent: "reviewer", task: "Review recent changes..." })
-subagent({ name: "Researcher", agent: "researcher", task: "Research [topic]..." })
-
-// Spec — clarifies WHAT to build (interactive, user collaborates)
-subagent({ name: "📝 Spec", agent: "spec", interactive: true, task: "Define spec: [description]. Context: [relevant info]" })
-
-// Planner — figures out HOW to build it (interactive, receives spec as input)
-subagent({ name: "💬 Planner", agent: "planner", interactive: true, task: "Plan implementation for spec: [spec artifact path]. Context: [relevant info]" })
-
-// Iterate — fork the session for focused work, full context preserved
-subagent({ name: "Iterate", fork: true, task: "Fix the bug where..." })
-
-// Override agent defaults when needed
-subagent({ name: "Worker", agent: "worker", model: "anthropic/claude-haiku-4-5", task: "Quick fix..." })
-
-// Parallel execution — just call subagent multiple times, they all run concurrently
-subagent({ name: "Scout: Auth", agent: "scout", task: "Analyze auth module" })
-subagent({ name: "Scout: DB", agent: "scout", task: "Map database schema" })
+subagent({ name: "Scout: Auth", agent: "scout", scratchpad: true, task: "Analyze auth module" })
+subagent({ name: "Planner: Auth", agent: "planner", interactive: true, scratchpad: true, task: "Plan the auth change" })
+subagent({ name: "Worker: Todo 123", agent: "worker", scratchpad: true, task: "Implement Solo todo 123" })
+subagent({ name: "Reviewer: Auth", agent: "reviewer", scratchpad: true, task: "Review the auth changes" })
 ```
 
-**Parallel execution:** Since subagents are async, just call `subagent` multiple times — they all run concurrently in their own cmux terminals. Results steer back independently as each finishes.
+Run workers sequentially in a shared git repo. Parallel scouts and researchers are fine when their work is read-only.
 
-Subagents are full pi sessions — all extensions and skills auto-discover. A subagent can spawn another subagent (e.g., planner spawns a scout). Agent `.md` files in `~/.pi/agent/agents/` define model, tools, skills, thinking level.
+#### Slash Commands
 
-**`auto-exit: true` frontmatter field** — Set in agent definition `.md` files to make the agent auto-shutdown when its turn ends, without needing to call `subagent_done`. Use for autonomous agents (scout, worker, reviewer). Don't use for interactive agents (spec, planner). Safety: if the user sends any input during the session, auto-exit is permanently disabled for that session.
-
-**Slash commands:**
-- `/plan <what to build>` — start the full planning workflow (assess → scout → spec → planner → execute → review)
-- `/subagent <agent> <task>` — spawn a subagent by name (e.g., `/subagent scout analyze auth module`)
-- `/iterate [task]` — fork session for quick fixes
-
-**Iterate pattern** — for quick fixes and ad-hoc work after a big implementation. The user branches off into a focused subagent, fixes a bug or makes a change, then comes back with just the summary. Keeps the main session's context clean.
-
-```typescript
-subagent({
-  name: "Iterate",
-  fork: true,
-  task: "[describe the bug or change needed]"
-})
-```
-
-`fork: true` copies the current session — the sub-agent has full conversation context. All extensions and skills auto-discover (no `extensions` param = everything). Use when the user says "let me fix this real quick", "iterate on this", or when they want focused work without polluting the main session's context.
+- `/plan <what to build>` — expands the Solo planning workflow.
+- `/answer` — collect answers for grouped questions.
+- `/cost` — show API cost summary.
 
 #### When to Delegate
 
-- **New feature or unclear requirements** → Start with `spec` to clarify WHAT, then `planner` for HOW
-- **Todos ready to execute** → Spawn `scout` then `worker` agents. **If the project defines a specialized agent** (e.g. `fullstack` for a web project), prefer it over generic `worker` — it has project-specific context, docs references, and often a stronger model.
-- **Worker reports missing context** → Provide the missing examples/references, update the todo, re-spawn the worker
-- **Code review needed** → Delegate to `reviewer`
-- **Need context first** → Start with `scout`
-- **Web research or external info needed** → Delegate to `researcher` (uses parallel tools for web search/synthesis, Claude Code for hands-on code exploration)
+- **New feature or unclear requirements** → Use `/plan` or spawn `planner`.
+- **Need codebase context** → Spawn `scout`.
+- **Todo ready to execute** → Spawn `worker` for exactly one Solo todo.
+- **Worker reports missing context** → Update the todo with examples/references, then respawn `worker`.
+- **Code review needed** → Spawn `reviewer`.
+- **External research needed** → Spawn `researcher`.
+- **Visual QA needed** → Spawn `visual-tester`.
 
 #### When NOT to Delegate
 
-- Quick fixes (< 2 minutes of work)
-- Simple questions
-- Single-file changes with obvious scope
-- When the user wants to stay hands-on
+- Quick fixes under two minutes.
+- Simple questions.
+- Single-file changes with obvious scope.
+- When the user wants to stay hands-on.
 
-**Default to delegation for anything substantial.**
+**Default to Solo delegation for substantial work.**
 
 ### Skill Triggers
 

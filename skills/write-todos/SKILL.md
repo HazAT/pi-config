@@ -1,135 +1,97 @@
 ---
 name: write-todos
-description: Write clear, actionable todos that workers can execute without losing architectural intent. Use when "create todos", "write todos", "break into tasks", "plan todos", "make todos", or creating work items from a plan. Ensures each todo has unambiguous expected outcomes, concrete examples, and explicit constraints so workers don't drift from the design.
+description: Write clear Solo todos that workers can execute without losing architectural intent. Use when asked to "create todos", "write todos", "break into tasks", "plan todos", or create work items from a plan. Ensures each todo has outcomes, examples, constraints, and verification criteria.
 ---
 
-# Write Todos
+# Write Solo Todos
 
-Write todos that a worker agent can execute without access to the planning conversation. Every todo must be **self-contained** — a worker reading only the todo and the plan artifact must produce the correct result.
+Write Solo todos that a worker can execute from the todo body, plan scratchpad, and referenced code. Every todo must preserve the architectural intent from the plan.
 
-## Why This Matters
-
-Workers implement exactly what's described. If a todo contains a code sketch using plain classes, the worker builds plain classes — even if the plan says "use functional code for everything." Architectural intent that only lives in the plan's prose gets lost. Every constraint must be **in the todo body itself**.
-
-## Todo Structure
-
-Every todo body follows this structure:
+## Todo Body Template
 
 ```markdown
-**Plan:** `plans/YYYY-MM-DD-<name>.md`
+**Plan scratchpad:** [name/id]
+**Scout scratchpad:** [name/id if relevant]
+**Depends on:** [todo ids or "none"]
 
 ## What
-[One paragraph: what this todo produces and why it matters]
+[One paragraph: what this todo produces and why]
 
 ## Constraints
-- [Explicit architectural constraints that MUST be followed]
-- [Libraries/patterns to use — or explicitly NOT use]
-- [Reference existing code patterns: "Follow the pattern in src/foo.ts"]
+- [Architectural constraints]
+- [Libraries/patterns to use]
+- [Anti-patterns to avoid]
 
 ## Files
-- `src/path/to/file.ts` — [what this file does]
-- `src/path/to/other.ts` — [what this file does]
+- `path/to/file` — [what changes]
 
-## Expected Outcome
-[Concrete description of what the finished code looks like]
+## References
+- `path/to/example.ts:10-45` — [pattern to follow]
 
-### Example
-[Short code snippet showing the expected shape — imports, key patterns, structure]
+## Expected Shape
+```typescript
+// Short code sketch with imports and structure when no existing reference is enough
+```
 
 ## Acceptance Criteria
 - [ ] [Specific, verifiable criterion]
-- [ ] [Another criterion]
-- [ ] [Build/lint/test passes]
+- [ ] [Command/test/check passes]
 ```
 
 ## Rules
 
-### 1. Constraints Are Explicit, Not Implied
+### Make Constraints Explicit
 
-If the plan says "use Effect v4 for all services," every service todo must repeat that:
+Repeat every relevant plan decision in the todo body. Do not rely on the worker reading between the lines.
 
-| Bad (implicit) | Good (explicit) |
+| Weak | Strong |
 |---|---|
-| "Build the EventBus service" | "Build the EventBus as an Effect v4 service. Import from `effect`. Use `Effect.gen`, `Layer`, and `Context.Tag` — not plain classes." |
-| "Add WebSocket support" | "Add WebSocket support using the `ws` package. Do NOT use `socket.io`." |
-| "Create the component" | "Create the component using React 19 + Tailwind v4 utility classes. No CSS modules, no styled-components." |
+| "Build the service" | "Build an Effect service using `Context.Tag` and `Layer`; do not use a plain class singleton." |
+| "Add WebSocket support" | "Use the `ws` package; do not introduce Socket.IO." |
+| "Create the component" | "Use React 19 and Tailwind v4 utilities; no CSS modules." |
 
-### 2. Examples Show The Real Shape
+### Include a Code Example or Existing Reference
 
-Include a short code snippet showing the expected import style, patterns, and structure. This is the single most effective way to prevent drift.
+Every todo needs one of:
 
-```markdown
-### Example
+1. An inline code sketch showing imports, types, and structure.
+2. A precise existing file reference with line range and what to copy.
 
-The service should look like this (not a plain class):
+### Name Anti-Patterns
 
-\```typescript
-import { Effect, Context, Layer } from "effect"
-
-class EventBus extends Context.Tag("EventBus")<EventBus, {
-  readonly subscribe: (topic: string) => Effect.Effect<Subscription>
-  readonly publish: (event: PiEvent) => Effect.Effect<void>
-}>() {}
-
-const EventBusLive = Layer.effect(EventBus, Effect.gen(function* () {
-  // ... implementation using Effect primitives
-}))
-\```
-```
-
-Without examples, workers default to the most common pattern they know — which is usually plain TypeScript classes.
-
-### 3. Anti-Patterns Are Named
-
-If there's a wrong way that looks right, call it out:
+If a wrong approach looks plausible, name it:
 
 ```markdown
 ## Constraints
-- Use Effect v4 services with `Context.Tag` and `Layer`
-- **Do NOT** use plain classes with manual observer patterns (no `new EventBus()`, no `Set<() => void>` listener tracking)
-- **Do NOT** use `useSyncExternalStore` with hand-rolled subscribe — use Effect's reactive primitives
+- Use the existing repository abstraction in `src/db/repository.ts`.
+- Do not add direct SQL calls in route handlers.
+- Do not create a second cache layer.
 ```
 
-### 4. Each Todo Is Self-Contained
+### Keep Todos Focused
 
-A worker reads: (1) the todo body, (2) the plan artifact, (3) existing code. That's it. They don't read other todos. So:
+One todo should fit one worker session and one commit. Split work when a todo touches unrelated behavior, has more than a few files, or needs separate verification.
 
-- Reference the plan path in every todo
-- List all files to create or modify
-- Note which existing files to read for context
-- Include any conventions discovered during planning
+### Make Acceptance Criteria Verifiable
 
-### 5. Todos Are Sequenced
+Use commands, file checks, API responses, screenshots, or exact behavior.
 
-Number todos and note dependencies:
-
-```markdown
-**Title:** "Todo 3: Build EventNode state machine"
-**Body includes:** "Depends on Todo 2 (types in `src/core/types.ts`). Read that file first."
-```
-
-### 6. Size Is Right
-
-Each todo should be **one focused unit of work** — a worker can complete it in one session and make one commit. If a todo has more than 3 files to create, consider splitting it.
-
-### 7. Acceptance Criteria Are Verifiable
-
-Every criterion should be checkable by running a command or reading the output:
-
-| Bad (vague) | Good (verifiable) |
+| Weak | Strong |
 |---|---|
-| "Code is clean" | "`vp check` passes with no errors" |
-| "Works correctly" | "Running `node -e 'import { EventBus } from \"./src/services/EventBus\"'` succeeds" |
-| "Tests pass" | "`vp test src/core/EventNode.test.ts` passes" |
-| "Follows conventions" | "All imports use `effect` package, no plain class instantiation" |
+| "Code is clean" | "`npm run typecheck` passes" |
+| "Works correctly" | "Submitting the form shows the success toast and creates one network request" |
+| "Follows conventions" | "Imports come from `effect`; no `new Service()` appears" |
 
-## Checklist Before Creating Todos
+## Creating Todos
 
-Before calling `todo(action: "create")`, verify:
+Use `todo_create`. Tag every todo with the plan tag.
 
-- [ ] Every architectural decision from the plan appears as an explicit constraint in at least one todo
-- [ ] Every todo has a code example showing expected shape (imports, patterns, structure)
-- [ ] No todo relies on context only available in the planning conversation
-- [ ] Anti-patterns are named in relevant todos ("do NOT use X")
-- [ ] Todos are numbered and dependencies noted
-- [ ] Acceptance criteria are verifiable commands, not subjective judgments
+Before creating each todo, verify:
+
+- [ ] Plan scratchpad is referenced.
+- [ ] Todo is independently implementable.
+- [ ] Constraints and anti-patterns are explicit.
+- [ ] Code example or exact reference is present.
+- [ ] Dependencies are listed.
+- [ ] Acceptance criteria are objective.
+- [ ] The todo is small enough for one worker and one commit.
