@@ -1,11 +1,13 @@
 {
-  "lastChangelogVersion": "0.74.0",
+  "lastChangelogVersion": "0.74.1",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.5",
   "defaultThinkingLevel": "xhigh",
+  "theme": "solo",
   "packages": [
     "git:github.com/pasky/chrome-cdp-skill",
-    "git:github.com/HazAT/pi-parallel"
+    "git:github.com/HazAT/pi-parallel",
+    "git:github.com/HazAT/pi-solo"
   ],
   "hideThinkingBlock": false,
   "enabledModels": ["anthropic/claude-opus-4-7", "openai-codex/gpt-5.5"]
