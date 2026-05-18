@@ -166,6 +166,7 @@ Avoid shotgun debugging ("let me try this... nope, what about this..."). If you'
 | `reviewer` | Reviews code for quality/security/correctness and saves a scratchpad review | Codex |
 | `researcher` | Researches external facts using web tools and saves a scratchpad report | Sonnet 4.6 |
 | `visual-tester` | Visual QA via Chrome CDP and a scratchpad report | Sonnet 4.6 |
+| `handoff` | Interactive fresh-session continuation from a Solo handoff scratchpad | Global default |
 
 #### Orchestration Mindset
 
@@ -177,6 +178,7 @@ Solo subagents are specialists. Each agent focuses on its role, saves its artifa
 - **Reviewer** reviews changes and reports findings.
 - **Researcher** gathers external facts.
 - **Visual tester** checks UI behavior and presentation.
+- **Handoff** continues in a fresh interactive Solo Pi session from a saved handoff scratchpad.
 
 #### Solo Subagents
 
@@ -187,6 +189,7 @@ subagent({ name: "Scout: Auth", agent: "scout", scratchpad: true, task: "Analyze
 subagent({ name: "Planner: Auth", agent: "planner", interactive: true, scratchpad: true, task: "Plan the auth change" })
 subagent({ name: "Worker: Todo 123", agent: "worker", scratchpad: true, task: "Implement Solo todo 123" })
 subagent({ name: "Reviewer: Auth", agent: "reviewer", scratchpad: true, task: "Review the auth changes" })
+subagent({ name: "Handoff: Auth", agent: "handoff", interactive: true, scratchpad: false, task: "Continue from scratchpad #123" })
 ```
 
 Run workers sequentially in a shared git repo. Parallel scouts and researchers are fine when their work is read-only.
@@ -194,6 +197,7 @@ Run workers sequentially in a shared git repo. Parallel scouts and researchers a
 #### Slash Commands
 
 - `/plan <what to build>` — expands the Solo planning workflow.
+- `/handoff <new prompt>` — writes a Solo handoff scratchpad and launches a fresh interactive Solo Pi session.
 - `/answer` — collect answers for grouped questions.
 - `/cost` — show API cost summary.
 

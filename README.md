@@ -51,6 +51,7 @@ The old local `cmux` and file-based `todos` extensions are gone; orchestration n
 | `reviewer` | `openai-codex/gpt-5.5` | Reviews changes for quality, security, and correctness |
 | `researcher` | `anthropic/claude-sonnet-4-6` | Uses web tools and local code reading to produce sourced research |
 | `visual-tester` | `anthropic/claude-sonnet-4-6` | Uses Chrome CDP for visual QA and scratchpad reports |
+| `handoff` | Global default | Interactive fresh-session continuation agent launched by `/handoff` with a Solo scratchpad summary |
 | `autoresearch` | `anthropic/claude-opus-4-6` | Runs autonomous experiment batches |
 
 ## Skills
@@ -58,6 +59,7 @@ The old local `cmux` and file-based `todos` extensions are gone; orchestration n
 | Skill | When to Load |
 |---|---|
 | `plan` | Running the Solo-native planning workflow |
+| `handoff` | Starting a fresh Solo Pi session from a current-session handoff scratchpad |
 | `write-todos` | Writing worker-ready Solo todos from a plan |
 | `commit` | Making git commits; mandatory for every commit |
 | `code-simplifier` | Simplifying or cleaning up code |
@@ -77,6 +79,7 @@ Removed skills: `cmux`, `presentation-creator`, and `self-improve`.
 | Path | Provides |
 |---|---|
 | `prompts/plan.md` | `/plan <description>` Solo planning workflow |
+| `prompts/handoff.md` | `/handoff <new prompt>` creates a handoff scratchpad and starts an interactive fresh Solo Pi session |
 | `extensions/answer/` | `/answer` and `ctrl+.` interactive Q&A extraction from the last assistant message |
 | `extensions/cost/` | `/cost [days]` API cost summary |
 | `extensions/execute-command/` | `execute_command` tool for triggering `/answer`, queuing slash commands, or sending a steer message |
