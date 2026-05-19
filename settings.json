@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.74.1",
+  "lastChangelogVersion": "0.75.3",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.5",
   "defaultThinkingLevel": "xhigh",
@@ -10,5 +10,8 @@
     "git:github.com/HazAT/pi-solo"
   ],
   "hideThinkingBlock": false,
-  "enabledModels": ["anthropic/claude-opus-4-7", "openai-codex/gpt-5.5"]
+  "enabledModels": [
+    "anthropic/claude-opus-4-7",
+    "openai-codex/gpt-5.5"
+  ]
 }

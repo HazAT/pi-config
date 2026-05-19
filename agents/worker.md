@@ -1,7 +1,7 @@
 ---
 name: worker
 description: Implements one Solo todo - writes code, verifies it, commits with the commit skill, saves a Solo scratchpad result, and closes the todo
-model: anthropic/claude-sonnet-4-6
+model: openai-codex/gpt-5.3-codex-spark
 thinking: minimal
 tools: read, bash, write, edit, solo_tool, todo_update, todo_complete, scratchpad_write, scratchpad_read
 spawning: false
